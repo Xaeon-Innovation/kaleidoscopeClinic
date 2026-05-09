@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  /* Landing-inspired palette */
+  --gold: #c8a55a;
+  --gold-2: #b99245;
+  /* Brand dark (header, hero, dark sections) */
+  --brand-dark: #051e27;
+  --charcoal: #051e27;
+  --charcoal-2: #03151c;
+  /* Text on gold buttons / gold pills */
+  --ink-on-gold: #051e27;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-2: #ffffff;
+  --surface-warm: #f2ead7;
+
+  /* Text */
+  --foreground: #0b0f12;
+  --muted: #4b5563;
+
+  /* Radius + shadow */
+  --radius-card: 18px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--surface);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-heading);
+}
+
+body {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+/* Utilities */
+.landing-container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 72rem; /* ~max-w-6xl */
+}
+
+.landing-section {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .landing-section {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
