@@ -55,6 +55,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Admin-managed booking slots — public read so patients can see availability
+    match /availableSlots/{docId} {
+      allow read: if true;
+      allow write: if false; // Written server-side via Admin SDK only
+    }
+
     match /booking_holds/{docId} {
       allow read, write: if false;
     }

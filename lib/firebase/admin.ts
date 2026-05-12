@@ -30,7 +30,7 @@ export function getAdminApp() {
     credential: cert({
       projectId: sa.project_id,
       clientEmail: sa.client_email,
-      privateKey: sa.private_key,
+      privateKey: sa.private_key.replace(/\\n/g, "\n"),
     }),
   });
 }

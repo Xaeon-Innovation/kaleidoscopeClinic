@@ -18,11 +18,12 @@ export default function AboutPage() {
               Specialist-led dentistry, focused on longevity.
             </h1>
             <p className="text-sm leading-relaxed text-black/65 sm:text-base">
-              Kaleidoscope Dental Specialists is a specialist-led clinic focused
+              Kaleidoscope Dental Specialists is a specialist-led dental clinic focused
               on advanced implant dentistry, full mouth rehabilitation, and
-              aesthetic treatments. We combine digital workflows, precision
+              aesthetic treatments. The clinic combines digital workflows, precision
               planning, and high-end patient care to deliver predictable,
-              long-lasting results.
+              long-lasting results. We focus on quality over volume, offering a
+              concierge-style experience tailored to each patient.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <CtaButton href="/contact#book" variant="primary">

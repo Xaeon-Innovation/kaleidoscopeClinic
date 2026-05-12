@@ -23,23 +23,20 @@ export default async function Home() {
     <div className="min-h-full">
       <SiteHeader />
       {/* 1) Hero (fixed copy) — full-bleed */}
-      <section className="relative overflow-hidden bg-[var(--charcoal)] text-white">
+      <section className="relative overflow-hidden bg-[var(--surface-warm)] text-[var(--brand-dark)]">
         <div className="pointer-events-none absolute inset-0 opacity-25">
-          <div className="absolute -right-24 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full border border-white/10" />
-          <div className="absolute -right-10 top-1/2 h-[380px] w-[380px] -translate-y-1/2 rounded-full border border-white/10" />
-          <div className="absolute -right-32 top-1/2 h-[700px] w-[700px] -translate-y-1/2 rounded-full border border-white/5" />
+          <div className="absolute -right-24 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full border border-[var(--brand-dark)]/10" />
+          <div className="absolute -right-10 top-1/2 h-[380px] w-[380px] -translate-y-1/2 rounded-full border border-[var(--brand-dark)]/10" />
+          <div className="absolute -right-32 top-1/2 h-[700px] w-[700px] -translate-y-1/2 rounded-full border border-[var(--brand-dark)]/5" />
         </div>
 
         <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="relative grid gap-10 md:grid-cols-2 md:items-center">
             <div className="space-y-6">
-              <div className="text-xs font-semibold tracking-[0.16em] text-white/70">
-                LIMITED TIME ONLY
-              </div>
               <h1 className="font-[var(--font-serif)] text-4xl leading-[1.05] tracking-tight sm:text-5xl">
                 Permanent, Natural-Looking Teeth. Delivered by a Specialist.
               </h1>
-              <p className="max-w-prose text-base leading-relaxed text-white/80 sm:text-lg">
+              <p className="max-w-prose text-base leading-relaxed text-[var(--brand-dark)]/80 sm:text-lg">
                 Advanced implant and restorative dentistry designed for long-term
                 function, aesthetics, and confidence.
               </p>
@@ -59,22 +56,22 @@ export default async function Home() {
                   Message us on WhatsApp
                 </CtaButton>
               </div>
-              <ul className="grid gap-3 pt-2 text-sm text-white/85 sm:grid-cols-3">
-                <li className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <ul className="grid gap-3 pt-2 text-sm text-[var(--brand-dark)]/85 sm:grid-cols-3">
+                <li className="rounded-2xl bg-white/50 p-4 ring-1 ring-[var(--brand-dark)]/10">
                   Consultant-led care
                 </li>
-                <li className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                <li className="rounded-2xl bg-white/50 p-4 ring-1 ring-[var(--brand-dark)]/10">
                   Advanced digital planning
                 </li>
-                <li className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                <li className="rounded-2xl bg-white/50 p-4 ring-1 ring-[var(--brand-dark)]/10">
                   Natural, long-lasting results
                 </li>
               </ul>
             </div>
 
-            <div className="rounded-[24px] bg-white/5 p-6 ring-1 ring-white/10">
-              <div className="aspect-[4/3] w-full rounded-[20px] bg-white/10" />
-              <p className="mt-4 text-sm text-white/70">
+            <div className="rounded-[24px] bg-white/50 p-6 ring-1 ring-[var(--brand-dark)]/10">
+              <div className="aspect-[4/3] w-full rounded-[20px] bg-black/5" />
+              <p className="mt-4 text-sm text-[var(--brand-dark)]/70">
                 Clinic imagery and before/after cases will be added here (real
                 patient photography, neutral backgrounds).
               </p>
@@ -157,7 +154,7 @@ export default async function Home() {
                 }))
               : [
                   {
-                    title: "Full Arch Implants (All-on-X)",
+                    title: "Full Arch Implants",
                     copy: "Same-day teeth options with precision planning and a calm, clinical process.",
                   },
                   {
