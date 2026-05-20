@@ -33,18 +33,19 @@ export function TeamSection({ className = "" }: { className?: string }) {
           </div>
           <div className="mt-5">
             <span className="inline-block rounded-md bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold tracking-wide text-[var(--ink-on-gold)]">
-              HONORARY CONSULTANT
+              CONSULTANT IN PROSTHODONTICS
             </span>
           </div>
           <h3 className="mt-4 font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)]">
             Dr Sherif Elsharkawy
           </h3>
           <p className="mt-2 text-[11px] font-semibold leading-snug tracking-wide text-[var(--gold)]">
-            HONORARY CONSULTANT IN PROSTHODONTICS
+            KING&apos;S COLLEGE LONDON
           </p>
           <p className="mt-3 text-sm text-[var(--brand-dark)]/85">
-            Honorary Consultant &amp; Senior Clinical Lecturer — King&apos;s
-            College London Dental Institute
+            Specialising in complex restorative and implant dentistry, Dr
+            Elsharkawy focuses on delivering predictable, long-term results
+            through advanced digital workflows and precision treatment planning.
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             {[
@@ -71,17 +72,19 @@ export function TeamSection({ className = "" }: { className?: string }) {
           </div>
           <div className="mt-5">
             <span className="inline-block rounded-md bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold tracking-wide text-[var(--ink-on-gold)]">
-              MRCSED
+              SPECIALIST IN PROSTHODONTICS
             </span>
           </div>
           <h3 className="mt-4 font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)]">
             Dr Sumaia Rashed
           </h3>
           <p className="mt-2 text-[11px] font-semibold leading-snug tracking-wide text-[var(--gold)]">
-            DENTIST WITH SPECIAL INTEREST IN PROSTHODONTICS &amp; IMPLANTS
+            PROSTHODONTICS &amp; FACIAL AESTHETICS
           </p>
           <p className="mt-3 text-sm text-[var(--brand-dark)]/85">
-            MRCSEd — Member of the Royal College of Surgeons of Edinburgh
+            Dr Rashed combines clinical expertise with an artistic approach to
+            smile and facial harmony, delivering refined, natural results through
+            advanced restorative and aesthetic treatments.
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             {[

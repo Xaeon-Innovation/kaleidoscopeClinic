@@ -1,8 +1,5 @@
 "use client";
 
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase/client";
-
 export type LeadPayload = {
   name: string;
   email: string;
@@ -15,7 +12,6 @@ export type LeadPayload = {
 
 export async function submitLead(payload: LeadPayload) {
   const cleaned = {
-    createdAt: serverTimestamp(),
     name: payload.name.trim(),
     email: payload.email.trim(),
     phone: payload.phone.trim(),
@@ -29,6 +25,16 @@ export async function submitLead(payload: LeadPayload) {
     throw new Error("Missing required fields");
   }
 
-  await addDoc(collection(getFirebaseDb(), "leads"), cleaned);
+  const response = await fetch("/api/leads", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(cleaned),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to submit lead");
+  }
 }
 

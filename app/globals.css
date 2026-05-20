@@ -5,11 +5,11 @@
   --gold: #c8a55a;
   --gold-2: #b99245;
   /* Brand dark (header, hero, dark sections) */
-  --brand-dark: #051e27;
-  --charcoal: #051e27;
-  --charcoal-2: #03151c;
+  --brand-dark: #022c22;
+  --charcoal: #022c22;
+  --charcoal-2: #064e3b;
   /* Text on gold buttons / gold pills */
-  --ink-on-gold: #051e27;
+  --ink-on-gold: #022c22;
 
   /* Surfaces */
   --surface: #ffffff;
