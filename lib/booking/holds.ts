@@ -3,7 +3,7 @@ import "server-only";
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
 import type { SlotInterval } from "@/lib/calendar/slot";
-import { getBookingHoldMinutes } from "@/lib/booking/config";
+import { getBookingSettings } from "@/lib/booking/settings";
 
 const HOLDS = "booking_holds";
 
@@ -14,9 +14,10 @@ export async function createBookingHold(params: {
   const db = getAdminDb();
   if (!db) throw new Error("Firestore admin not configured");
 
+  const { holdMinutes } = await getBookingSettings();
   const now = Timestamp.now();
   const expiresAt = Timestamp.fromMillis(
-    now.toMillis() + getBookingHoldMinutes() * 60 * 1000
+    now.toMillis() + holdMinutes * 60 * 1000
   );
 
   await db.collection(HOLDS).doc(params.stripeSessionId).set({

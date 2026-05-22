@@ -26,12 +26,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Public API routes that serve relatively static CMS data
-        source: "/api/slots",
+        source: "/api/calendar/availability",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=60, stale-while-revalidate=300",
+            value: "no-store",
           },
         ],
       },

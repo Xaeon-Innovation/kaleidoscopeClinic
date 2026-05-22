@@ -4,14 +4,12 @@ import { addDays, addMinutes } from "date-fns";
 import { formatInTimeZone, toDate } from "date-fns-tz";
 import { queryFreeBusy } from "@/lib/calendar/googleCalendar";
 import { getActiveHoldsIntervals } from "@/lib/booking/holds";
-import type { SlotInterval } from "@/lib/calendar/slot";
 import {
-  getBookingCloseHour,
-  getBookingOpenHour,
-  getBookingSlotMinutes,
-  getBookingTimezone,
-  getBookingWeekdays,
-} from "@/lib/booking/config";
+  getBookingSettings,
+  getDaySchedule,
+  type BookingSettings,
+} from "@/lib/booking/settings";
+import type { SlotInterval } from "@/lib/calendar/slot";
 
 export type { SlotInterval } from "@/lib/calendar/slot";
 
@@ -28,13 +26,11 @@ function pad2(n: number) {
  */
 export function generateCandidateSlots(
   fromDay: string,
-  toDay: string
+  toDay: string,
+  settings: BookingSettings
 ): SlotInterval[] {
-  const tz = getBookingTimezone();
-  const slotMin = getBookingSlotMinutes();
-  const openH = getBookingOpenHour();
-  const closeH = getBookingCloseHour();
-  const weekdays = new Set(getBookingWeekdays());
+  const tz = settings.timezone;
+  const slotMin = settings.slotMinutes;
 
   if (fromDay > toDay) return [];
 
@@ -48,21 +44,26 @@ export function generateCandidateSlots(
   for (let dateStr = fromDay; ; dateStr = nextYmd(dateStr)) {
     const noon = toDate(`${dateStr}T12:00:00`, { timeZone: tz });
     const isoWeekday = parseInt(formatInTimeZone(noon, tz, "i"), 10);
-    if (weekdays.has(isoWeekday)) {
-      const dayEndLimit = toDate(`${dateStr}T${pad2(closeH)}:00:00`, {
-        timeZone: tz,
-      });
+    const day = getDaySchedule(settings, isoWeekday);
+    if (!day?.enabled) {
+      if (dateStr === toDay) break;
+      continue;
+    }
 
-      let slotStart = toDate(`${dateStr}T${pad2(openH)}:00:00`, {
-        timeZone: tz,
-      });
+    const dayEndLimit = toDate(
+      `${dateStr}T${pad2(day.closeHour)}:00:00`,
+      { timeZone: tz }
+    );
 
-      while (true) {
-        const slotEnd = addMinutes(slotStart, slotMin);
-        if (slotEnd > dayEndLimit) break;
-        out.push({ start: slotStart, end: slotEnd });
-        slotStart = addMinutes(slotStart, slotMin);
-      }
+    let slotStart = toDate(`${dateStr}T${pad2(day.openHour)}:00:00`, {
+      timeZone: tz,
+    });
+
+    while (true) {
+      const slotEnd = addMinutes(slotStart, slotMin);
+      if (slotEnd > dayEndLimit) break;
+      out.push({ start: slotStart, end: slotEnd });
+      slotStart = addMinutes(slotStart, slotMin);
     }
 
     if (dateStr === toDay) break;
@@ -71,11 +72,35 @@ export function generateCandidateSlots(
   return out;
 }
 
-function subtractBusy(
-  slots: SlotInterval[],
-  busy: SlotInterval[]
-): SlotInterval[] {
-  return slots.filter((s) => !busy.some((b) => overlaps(s, b)));
+export type SlotWithStatus = SlotInterval & { available: boolean };
+
+/**
+ * All schedule slots in range with availability (calendar busy + active holds).
+ */
+export async function getSlotsWithStatus(
+  fromDay: string,
+  toDay: string
+): Promise<SlotWithStatus[]> {
+  const settings = await getBookingSettings();
+  const tz = settings.timezone;
+  const rangeStart = toDate(`${fromDay}T00:00:00`, { timeZone: tz });
+  const rangeEnd = toDate(`${toDay}T23:59:59`, { timeZone: tz });
+
+  const candidates = generateCandidateSlots(fromDay, toDay, settings);
+  if (candidates.length === 0) return [];
+
+  const busyFromApi = await queryFreeBusy({
+    timeMin: rangeStart,
+    timeMax: rangeEnd,
+  });
+
+  const holds = await getActiveHoldsIntervals(rangeStart, rangeEnd);
+  const busy = [...busyFromApi, ...holds];
+
+  return candidates.map((s) => ({
+    ...s,
+    available: !busy.some((b) => overlaps(s, b)),
+  }));
 }
 
 /**
@@ -85,20 +110,6 @@ export async function getAvailableSlots(
   fromDay: string,
   toDay: string
 ): Promise<SlotInterval[]> {
-  const tz = getBookingTimezone();
-  const rangeStart = toDate(`${fromDay}T00:00:00`, { timeZone: tz });
-  const rangeEnd = toDate(`${toDay}T23:59:59`, { timeZone: tz });
-
-  const candidates = generateCandidateSlots(fromDay, toDay);
-  if (candidates.length === 0) return [];
-
-  const busyFromApi = await queryFreeBusy({
-    timeMin: rangeStart,
-    timeMax: rangeEnd,
-  });
-
-  const holds = await getActiveHoldsIntervals(rangeStart, rangeEnd);
-
-  const busy = [...busyFromApi, ...holds];
-  return subtractBusy(candidates, busy);
+  const slots = await getSlotsWithStatus(fromDay, toDay);
+  return slots.filter((s) => s.available).map(({ start, end }) => ({ start, end }));
 }

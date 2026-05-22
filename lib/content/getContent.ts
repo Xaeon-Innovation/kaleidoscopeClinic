@@ -3,11 +3,35 @@ import "server-only";
 import { getAdminDb } from "@/lib/firebase/admin";
 import type { CaseDoc, ServiceDoc, TeamDoc, TestimonialDoc } from "./types";
 
+function isFirestoreSetupError(err: unknown): boolean {
+  const code =
+    err && typeof err === "object" && "code" in err
+      ? String((err as { code: unknown }).code)
+      : "";
+  const message = err instanceof Error ? err.message : String(err);
+  return (
+    code === "permission-denied" ||
+    code === "7" ||
+    message.includes("PERMISSION_DENIED") ||
+    message.includes("Firestore API has not been used")
+  );
+}
+
 async function listCollection<T>(name: string, orderField: string) {
   const db = getAdminDb();
   if (!db) return [];
-  const snap = await db.collection(name).orderBy(orderField, "asc").get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as T) }));
+  try {
+    const snap = await db.collection(name).orderBy(orderField, "asc").get();
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as T) }));
+  } catch (err) {
+    if (isFirestoreSetupError(err)) {
+      console.error(
+        `[getContent] Firestore unavailable for "${name}". Enable Firestore API and create a database: https://console.firebase.google.com/project/kaleidoscope-clinic/firestore`
+      );
+      return [];
+    }
+    throw err;
+  }
 }
 
 export async function getServices() {

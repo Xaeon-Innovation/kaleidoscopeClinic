@@ -3,12 +3,12 @@ import "server-only";
 import { formatInTimeZone } from "date-fns-tz";
 import { getAvailableSlots } from "@/lib/calendar/availability";
 import type { SlotInterval } from "@/lib/calendar/slot";
-import { getBookingTimezone } from "@/lib/booking/config";
+import { getBookingSettings } from "@/lib/booking/settings";
 
 export async function assertSlotStillAvailable(
   slot: SlotInterval
 ): Promise<void> {
-  const tz = getBookingTimezone();
+  const { timezone: tz } = await getBookingSettings();
   const day = formatInTimeZone(slot.start, tz, "yyyy-MM-dd");
   const available = await getAvailableSlots(day, day);
   const ok = available.some(

@@ -3,6 +3,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CtaButton } from "@/components/CtaButton";
 import { CLINIC } from "@/components/siteLinks";
+import { fulfillCheckoutBySessionId } from "@/lib/booking/fulfillCheckout";
 
 export const metadata = {
   title: "Booking payment received",
@@ -16,7 +17,21 @@ export default async function BookSuccessPage({
   searchParams: SearchParams;
 }) {
   const sp = await searchParams;
-  const hasSession = Boolean(sp.session_id);
+  const sessionId = sp.session_id?.trim();
+  const hasSession = Boolean(sessionId);
+
+  let fulfillmentError: string | null = null;
+  let fulfilled = false;
+
+  if (sessionId) {
+    const result = await fulfillCheckoutBySessionId(sessionId);
+    if (result.ok) {
+      fulfilled = true;
+    } else {
+      fulfillmentError = result.error;
+      console.error("book success fulfill", sessionId, result.error);
+    }
+  }
 
   return (
     <div className="min-h-full">
@@ -27,10 +42,19 @@ export default async function BookSuccessPage({
             Thank you
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-[var(--brand-dark)]/80">
-            {hasSession
-              ? "Your deposit payment was received. Your consultation should now appear on our calendar, and we will follow up using the contact details you provided."
-              : "If you completed payment, your consultation should soon appear on our calendar. Keep the confirmation email from Stripe for your records."}
+            {fulfilled
+              ? "Your deposit payment was received and your consultation is on our calendar. We will follow up using the contact details you provided."
+              : hasSession
+                ? "Your deposit payment was received. We are confirming your appointment — if nothing appears on our calendar within a few minutes, please contact us."
+                : "If you completed payment, your consultation should soon appear on our calendar. Keep the confirmation email from Stripe for your records."}
           </p>
+          {fulfillmentError && (
+            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              We could not add your appointment to the calendar automatically (
+              {fulfillmentError}). Please call or email us with your booking
+              details so we can confirm manually.
+            </p>
+          )}
           <p className="mt-4 text-sm text-[var(--brand-dark)]/65">
             Questions? Call{" "}
             <a

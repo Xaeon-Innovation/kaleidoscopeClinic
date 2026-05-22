@@ -20,6 +20,11 @@ type StatCard = {
   color: string;
 };
 
+type CalendarStatus = {
+  connected: boolean;
+  connectedEmail: string | null;
+};
+
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
     leads: 0,
@@ -28,7 +33,10 @@ export default function AdminDashboardPage() {
     bookingsThisMonth: 0,
     testimonials: 0,
     services: 0,
-    slots: 0,
+  });
+  const [calendar, setCalendar] = useState<CalendarStatus>({
+    connected: false,
+    connectedEmail: null,
   });
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +48,7 @@ export default function AdminDashboardPage() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        const [leadsSnap, bookingsSnap, testimonialsSnap, servicesSnap, slotsSnap] =
+        const [leadsSnap, bookingsSnap, testimonialsSnap, servicesSnap, calRes] =
           await Promise.all([
             getDocs(collection(db, "leads")),
             getDocs(collection(db, "appointments")),
@@ -51,12 +59,7 @@ export default function AdminDashboardPage() {
               )
             ),
             getDocs(collection(db, "services")),
-            getDocs(
-              query(
-                collection(db, "availableSlots"),
-                where("date", ">=", now.toISOString().split("T")[0])
-              )
-            ),
+            fetch("/api/admin/google/status"),
           ]);
 
         const leadsThisWeek = leadsSnap.docs.filter((d) => {
@@ -84,8 +87,12 @@ export default function AdminDashboardPage() {
           bookingsThisMonth,
           testimonials: testimonialsSnap.size,
           services: servicesSnap.size,
-          slots: slotsSnap.size,
         });
+
+        if (calRes.ok) {
+          const cal = (await calRes.json()) as CalendarStatus;
+          setCalendar(cal);
+        }
       } catch {
         // Silently fail if Firebase not yet configured
       } finally {
@@ -117,24 +124,25 @@ export default function AdminDashboardPage() {
       color: "bg-amber-50 text-amber-700 ring-amber-200",
     },
     {
-      label: "Open Booking Slots",
-      value: loading ? "—" : stats.slots,
-      sub: "upcoming",
-      href: "/admin/slots",
-      color: "bg-purple-50 text-purple-700 ring-purple-200",
+      label: "Google Calendar",
+      value: loading ? "—" : calendar.connected ? "Connected" : "Not connected",
+      sub: calendar.connectedEmail ?? "Required for online booking",
+      href: "/admin/settings",
+      color: calendar.connected
+        ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+        : "bg-purple-50 text-purple-700 ring-purple-200",
     },
   ];
 
   const quickLinks = [
     { href: "/admin/leads", label: "View all leads →" },
-    { href: "/admin/slots", label: "Manage booking slots →" },
+    { href: "/admin/settings", label: "Connect Google Calendar →" },
     { href: "/admin/before-after", label: "Upload before & after →" },
     { href: "/admin/testimonials", label: "Add testimonial →" },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)] sm:text-3xl">
           Dashboard
@@ -144,7 +152,19 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Stats */}
+      {!loading && !calendar.connected && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+          <p className="font-medium">Google Calendar not connected</p>
+          <p className="mt-1">
+            Patients cannot book online until you connect your calendar in{" "}
+            <Link href="/admin/settings" className="font-semibold underline">
+              Settings
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((c) => (
           <Link
@@ -170,7 +190,6 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Quick actions */}
       <div className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-sm">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-black/45">
           Quick actions
@@ -187,7 +206,6 @@ export default function AdminDashboardPage() {
           ))}
         </div>
       </div>
-
     </div>
   );
 }

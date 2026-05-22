@@ -1,5 +1,7 @@
 import "server-only";
 
+import { loadServiceAccount } from "@/lib/firebase/serviceAccount";
+
 export type ServiceAccountJson = {
   project_id: string;
   client_email: string;
@@ -7,25 +9,19 @@ export type ServiceAccountJson = {
 };
 
 /**
- * Calendar/API SA JSON — falls back to Firebase Admin key if unset (same GCP project).
- * Required env: one of `GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON` or `FIREBASE_SERVICE_ACCOUNT_JSON`.
+ * Calendar/API SA JSON — optional `GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON`, else Firebase admin credentials.
  */
 export function parseCalendarServiceAccount(): ServiceAccountJson | null {
-  const raw =
-    process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON ??
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as ServiceAccountJson;
-    if (
-      !parsed.project_id ||
-      !parsed.client_email ||
-      !parsed.private_key
-    ) {
-      return null;
+  const calRaw = process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON?.trim();
+  if (calRaw) {
+    try {
+      const parsed = JSON.parse(calRaw) as ServiceAccountJson;
+      if (parsed.project_id && parsed.client_email && parsed.private_key) {
+        return parsed;
+      }
+    } catch {
+      /* fall through */
     }
-    return parsed;
-  } catch {
-    return null;
   }
+  return loadServiceAccount();
 }

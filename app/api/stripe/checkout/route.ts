@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import {
-  getAppBaseUrl,
-  getBookingCurrency,
-  getBookingDepositPence,
-  getStripeWebhookSecret,
-} from "@/lib/booking/config";
-import { getCalendarConfigError } from "@/lib/calendar/googleCalendar";
+import { getAppBaseUrl, getStripeWebhookSecret } from "@/lib/booking/config";
+import { getBookingSettings } from "@/lib/booking/settings";
+import { getCalendarConnectionError } from "@/lib/calendar/googleCalendar";
 import { assertSlotStillAvailable } from "@/lib/booking/validateSlot";
 import { createBookingHold } from "@/lib/booking/holds";
 import { getAdminDb } from "@/lib/firebase/admin";
@@ -27,7 +23,7 @@ function isoField(s: unknown): string {
 }
 
 export async function POST(request: Request) {
-  const gcal = getCalendarConfigError();
+  const gcal = await getCalendarConnectionError();
   if (gcal) {
     return NextResponse.json(
       { error: "Booking unavailable", detail: gcal },
@@ -68,6 +64,7 @@ export async function POST(request: Request) {
   const patientName = trim(body.patientName, 120);
   const patientEmail = trim(body.patientEmail, 320);
   const patientPhone = trim(body.patientPhone, 40);
+  const patientNote = trim(body.patientNote, 500);
 
   if (!slotStart || !slotEnd || !patientName || !patientEmail || !patientPhone) {
     return NextResponse.json(
@@ -98,12 +95,23 @@ export async function POST(request: Request) {
   }
 
   const base = getAppBaseUrl();
-  const currency = getBookingCurrency();
-  const amount = getBookingDepositPence();
+  const booking = await getBookingSettings();
+  const currency = booking.currency;
+  const amount = booking.depositPence;
 
   try {
+    const metadata: Record<string, string> = {
+      slotStart: start.toISOString(),
+      slotEnd: end.toISOString(),
+      patientName,
+      patientEmail,
+      patientPhone,
+    };
+    if (patientNote) metadata.patientNote = patientNote;
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      customer_email: patientEmail,
       line_items: [
         {
           quantity: 1,
@@ -120,21 +128,9 @@ export async function POST(request: Request) {
       client_reference_id: `${start.getTime()}-${end.getTime()}`,
       success_url: `${base}/book/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/book`,
-      metadata: {
-        slotStart: start.toISOString(),
-        slotEnd: end.toISOString(),
-        patientName,
-        patientEmail,
-        patientPhone,
-      },
+      metadata,
       payment_intent_data: {
-        metadata: {
-          slotStart: start.toISOString(),
-          slotEnd: end.toISOString(),
-          patientName,
-          patientEmail,
-          patientPhone,
-        },
+        metadata,
       },
     });
 

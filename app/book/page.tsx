@@ -21,9 +21,9 @@ export default function BookPage() {
             Consultation booking
           </h1>
           <p className="max-w-prose text-sm leading-relaxed text-[var(--brand-dark)]/80 sm:text-base">
-            Pick an available time, enter your details, and pay a deposit to
-            confirm your slot. You will be redirected to Stripe to complete
-            payment securely.
+            Pick an available time from our live calendar, enter your details,
+            and pay a deposit to confirm your slot. You will be redirected to
+            Stripe to complete payment securely.
           </p>
         </header>
 

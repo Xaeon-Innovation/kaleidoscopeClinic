@@ -9,12 +9,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing idToken" }, { status: 400 });
     }
 
-    // In production you would verify the idToken with firebase-admin here.
-    // For now we just store it as a session indicator cookie. 
-    // Once FIREBASE_SERVICE_ACCOUNT_JSON is configured, replace this block with:
-    //   const { auth } = await import("firebase-admin");
-    //   const decoded = await auth().verifyIdToken(idToken);
-    //   const sessionCookie = await auth().createSessionCookie(idToken, { expiresIn: 60 * 60 * 24 * 5 * 1000 });
+    const { getAdminAuth } = await import("@/lib/firebase/admin");
+    const auth = getAdminAuth();
+    if (auth) {
+      await auth.verifyIdToken(idToken);
+    }
 
     const response = NextResponse.json({ ok: true });
     response.cookies.set("__session", idToken, {

@@ -4,26 +4,62 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarGrid } from "@/components/CalendarGrid";
 import { CtaButton } from "@/components/CtaButton";
 import { CLINIC, getWhatsAppHref } from "@/components/siteLinks";
+import { CLINIC_TIMEZONE, CLINIC_TIMEZONE_LABEL } from "@/lib/booking/timezone";
 
-const TZ = "Europe/London";
+const TZ = CLINIC_TIMEZONE;
+const AVAILABILITY_DAYS = 60;
 
 type Slot = {
   id: string;
   date: string;
   startTime: string;
   endTime: string;
-  label: string;
-  booked: boolean;
+  slotStartIso: string;
+  slotEndIso: string;
+  available: boolean;
 };
 
-function formatTime(time: string): string {
-  const [h, m] = time.split(":").map(Number);
-  const d = new Date(2000, 0, 1, h, m);
+function ymdInTz(date: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function hmInTz(date: Date, timeZone: string): string {
   return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: TZ,
-  }).format(d);
+    hour12: false,
+  }).format(date);
+}
+
+function addDaysYmd(ymd: string, days: number, timeZone: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const utc = new Date(Date.UTC(y!, m! - 1, d! + days, 12));
+  return ymdInTz(utc, timeZone);
+}
+
+function mapApiSlot(
+  startIso: string,
+  endIso: string,
+  available: boolean
+): Slot {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  const date = ymdInTz(start, TZ);
+  return {
+    id: `${startIso}|${endIso}`,
+    date,
+    startTime: hmInTz(start, TZ),
+    endTime: hmInTz(end, TZ),
+    slotStartIso: startIso,
+    slotEndIso: endIso,
+    available,
+  };
 }
 
 function formatDisplayDate(dateStr: string): string {
@@ -39,42 +75,60 @@ function formatDisplayDate(dateStr: string): string {
 
 export function BookAppointmentClient() {
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "unavailable">("loading");
+  const [loadState, setLoadState] = useState<
+    "loading" | "ready" | "error" | "unavailable"
+  >("loading");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
 
-  // Patient form
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoadState("loading");
     try {
-      const res = await fetch("/api/slots");
+      const from = ymdInTz(new Date(), TZ);
+      const to = addDaysYmd(from, AVAILABILITY_DAYS, TZ);
+      const res = await fetch(
+        `/api/calendar/availability?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+      );
+      if (res.status === 503) {
+        setSlots([]);
+        setLoadState("unavailable");
+        return;
+      }
       if (!res.ok) {
         setLoadState("error");
         return;
       }
-      const data = await res.json() as { slots?: Slot[]; error?: string };
-      const available = (data.slots ?? []).filter((s) => !s.booked);
-      setSlots(available);
+      const data = (await res.json()) as {
+        slots?: { start: string; end: string; available?: boolean }[];
+      };
+      setSlots(
+        (data.slots ?? []).map((s) =>
+          mapApiSlot(s.start, s.end, s.available !== false)
+        )
+      );
       setLoadState("ready");
     } catch {
       setLoadState("error");
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  // Build set of dates that have available slots
   const availableDates = useMemo(() => {
-    return new Set(slots.map((s) => s.date));
+    return new Set(
+      slots.filter((s) => s.available).map((s) => s.date)
+    );
   }, [slots]);
 
-  // Slots for the selected date
   const daySlots = useMemo(() => {
     if (!selectedDate) return [];
     return slots
@@ -93,27 +147,31 @@ export function BookAppointmentClient() {
     setSubmitError(null);
     setSubmitting(true);
     try {
-      // Build a Stripe checkout (or fallback to WhatsApp if Stripe not configured)
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slotId: selectedSlot.id,
-          slotStart: `${selectedSlot.date}T${selectedSlot.startTime}:00`,
-          slotEnd: `${selectedSlot.date}T${selectedSlot.endTime}:00`,
+          slotStart: selectedSlot.slotStartIso,
+          slotEnd: selectedSlot.slotEndIso,
           patientName: name,
           patientEmail: email,
           patientPhone: phone,
+          ...(note.trim() ? { patientNote: note.trim() } : {}),
         }),
       });
-      const data = await res.json() as { url?: string; error?: string };
+      const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
-        setSubmitError(data.error ?? "Could not start payment. Please message us on WhatsApp.");
+        setSubmitError(
+          data.error ??
+            "Could not start payment. Please message us on WhatsApp."
+        );
         return;
       }
       window.location.href = data.url;
     } catch {
-      setSubmitError("Something went wrong. Please try again or contact us on WhatsApp.");
+      setSubmitError(
+        "Something went wrong. Please try again or contact us on WhatsApp."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +185,6 @@ export function BookAppointmentClient() {
 
   return (
     <div className="space-y-6">
-      {/* Step 1 – Calendar */}
       <div className="rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/8 sm:p-8">
         <div className="mb-1 flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-bold text-[var(--ink-on-gold)]">
@@ -138,14 +195,40 @@ export function BookAppointmentClient() {
           </h2>
         </div>
         <p className="mb-5 text-sm text-[var(--brand-dark)]/55">
-          Dates highlighted in gold have available appointments.
+          Dates highlighted in gold have available appointments (live calendar
+          availability).
         </p>
 
         {loadState === "loading" && (
           <div className="space-y-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-9 animate-pulse rounded-xl bg-black/[0.04]" />
+              <div
+                key={i}
+                className="h-9 animate-pulse rounded-xl bg-black/[0.04]"
+              />
             ))}
+          </div>
+        )}
+
+        {loadState === "unavailable" && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+            <p className="font-medium">Online booking is not available right now.</p>
+            <p className="mt-2">
+              Please{" "}
+              <a
+                href={getWhatsAppHref("Hi, I'd like to book a consultation.")}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold underline"
+              >
+                message us on WhatsApp
+              </a>{" "}
+              or call{" "}
+              <a href={CLINIC.phoneHref} className="font-semibold underline">
+                {CLINIC.phoneDisplay}
+              </a>
+              .
+            </p>
           </div>
         )}
 
@@ -198,7 +281,6 @@ export function BookAppointmentClient() {
         )}
       </div>
 
-      {/* Step 2 – Time slot picker */}
       {selectedDate && daySlots.length > 0 && (
         <div className="rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/8 sm:p-8">
           <div className="mb-1 flex items-center gap-2">
@@ -210,26 +292,35 @@ export function BookAppointmentClient() {
             </h2>
           </div>
           <p className="mb-5 text-sm text-[var(--brand-dark)]/55">
-            {formatDisplayDate(selectedDate)} — select your preferred slot.
+            {formatDisplayDate(selectedDate)} — select your preferred slot. All
+            times are {CLINIC_TIMEZONE_LABEL}.
           </p>
 
           <div className="flex flex-wrap gap-2">
             {daySlots.map((s) => {
               const active = selectedSlot?.id === s.id;
+              const booked = !s.available;
               return (
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => setSelectedSlot(s)}
+                  disabled={booked}
+                  onClick={() => !booked && setSelectedSlot(s)}
                   className={[
                     "rounded-full px-5 py-2.5 text-sm font-medium transition",
-                    active
-                      ? "bg-[var(--brand-dark)] text-white shadow"
-                      : "border border-[var(--brand-dark)]/15 bg-white text-[var(--brand-dark)] hover:border-[var(--gold)] hover:bg-[var(--surface-warm)]",
+                    booked
+                      ? "cursor-not-allowed border border-[var(--brand-dark)]/8 bg-[var(--brand-dark)]/[0.04] text-[var(--brand-dark)]/40"
+                      : active
+                        ? "bg-[var(--brand-dark)] text-white shadow"
+                        : "border border-[var(--brand-dark)]/15 bg-white text-[var(--brand-dark)] hover:border-[var(--gold)] hover:bg-[var(--surface-warm)]",
                   ].join(" ")}
                 >
-                  {formatTime(s.startTime)} – {formatTime(s.endTime)}
-                  {s.label ? ` · ${s.label}` : ""}
+                  {s.startTime} – {s.endTime}
+                  {booked && (
+                    <span className="ml-1.5 text-[var(--brand-dark)]/35">
+                      · Booked
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -237,7 +328,6 @@ export function BookAppointmentClient() {
         </div>
       )}
 
-      {/* Step 3 – Patient details */}
       {selectedSlot && (
         <div className="rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/8 sm:p-8">
           <div className="mb-1 flex items-center gap-2">
@@ -252,13 +342,16 @@ export function BookAppointmentClient() {
             Selected:{" "}
             <strong className="text-[var(--brand-dark)]">
               {formatDisplayDate(selectedSlot.date)},{" "}
-              {formatTime(selectedSlot.startTime)} – {formatTime(selectedSlot.endTime)}
+              {selectedSlot.startTime} – {selectedSlot.endTime} (
+              {CLINIC_TIMEZONE_LABEL})
             </strong>
           </p>
 
           <form onSubmit={onConfirm} className="grid max-w-md gap-4">
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">Full name</span>
+              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
+                Full name
+              </span>
               <input
                 required
                 value={name}
@@ -268,7 +361,9 @@ export function BookAppointmentClient() {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">Email address</span>
+              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
+                Email address
+              </span>
               <input
                 required
                 type="email"
@@ -279,7 +374,9 @@ export function BookAppointmentClient() {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">Phone number</span>
+              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
+                Phone number
+              </span>
               <input
                 required
                 type="tel"
@@ -288,6 +385,25 @@ export function BookAppointmentClient() {
                 onChange={(e) => setPhone(e.target.value)}
                 className="h-11 rounded-xl border border-[var(--brand-dark)]/15 px-4 text-sm text-[var(--brand-dark)] outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
               />
+            </label>
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
+                Note for the clinic{" "}
+                <span className="font-normal text-[var(--brand-dark)]/45">
+                  (optional)
+                </span>
+              </span>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                maxLength={500}
+                rows={3}
+                placeholder="e.g. reason for visit, preferred contact method, accessibility needs…"
+                className="resize-y rounded-xl border border-[var(--brand-dark)]/15 px-4 py-3 text-sm text-[var(--brand-dark)] outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+              />
+              <span className="text-[10px] text-[var(--brand-dark)]/40">
+                Included in your calendar appointment for the team.
+              </span>
             </label>
 
             {submitError && (

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { getAvailableSlots } from "@/lib/calendar/availability";
-import { getCalendarConfigError } from "@/lib/calendar/googleCalendar";
+import { getSlotsWithStatus } from "@/lib/calendar/availability";
+import {
+  getCalendarConnectionError,
+  isInsufficientScopeError,
+} from "@/lib/calendar/googleCalendar";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -8,7 +11,7 @@ export const runtime = "nodejs";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function GET(request: Request) {
-  const cfg = getCalendarConfigError();
+  const cfg = await getCalendarConnectionError();
   if (cfg) {
     return NextResponse.json(
       { error: "Booking unavailable", detail: cfg },
@@ -35,15 +38,26 @@ export async function GET(request: Request) {
   }
 
   try {
-    const slots = await getAvailableSlots(from, to);
+    const slots = await getSlotsWithStatus(from, to);
     return NextResponse.json({
       slots: slots.map((s) => ({
         start: s.start.toISOString(),
         end: s.end.toISOString(),
+        available: s.available,
       })),
     });
   } catch (e) {
     console.error("availability GET", e);
+    if (isInsufficientScopeError(e)) {
+      return NextResponse.json(
+        {
+          error: "Calendar permissions incomplete",
+          detail:
+            "Disconnect Google Calendar in Admin → Settings, add Calendar read scopes in Google Cloud OAuth consent screen, then connect again.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { error: "Failed to load availability." },
       { status: 500 }

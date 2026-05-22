@@ -64,6 +64,11 @@ service cloud.firestore {
     match /booking_holds/{docId} {
       allow read, write: if false;
     }
+
+    // Google Calendar OAuth tokens — server-only via Admin SDK
+    match /integrations/{docId} {
+      allow read, write: if false;
+    }
   }
 }
 
