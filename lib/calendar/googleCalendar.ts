@@ -173,6 +173,7 @@ function toGoogleCalendarDateTime(date: Date, timeZone: string): string {
 }
 
 function buildConsultationDescription(params: {
+  consultationTreatmentName?: string;
   patientName: string;
   patientEmail: string;
   patientPhone: string;
@@ -182,6 +183,9 @@ function buildConsultationDescription(params: {
   const lines = [
     "Booked via Kaleidoscope website (deposit paid).",
     "",
+    ...(params.consultationTreatmentName
+      ? [`Consultation for: ${params.consultationTreatmentName}`, ""]
+      : []),
     `Patient: ${params.patientName}`,
     `Email: ${params.patientEmail}`,
     `Phone: ${params.patientPhone}`,
@@ -199,6 +203,7 @@ function buildConsultationDescription(params: {
 export async function insertConsultationEvent(params: {
   slotStart: Date;
   slotEnd: Date;
+  consultationTreatmentName?: string;
   patientName: string;
   patientEmail: string;
   patientPhone: string;
@@ -213,12 +218,16 @@ export async function insertConsultationEvent(params: {
 
   const { timezone: tz } = await getBookingSettings();
   const name = params.patientName.trim() || "Patient";
+  const treatment = params.consultationTreatmentName?.trim();
+  const summary = treatment
+    ? `Consultation — ${treatment} — ${name}`
+    : `Consultation — ${name}`;
 
   const res = await client.events.insert({
     calendarId,
     sendUpdates: "all",
     requestBody: {
-      summary: `Consultation — ${name}`,
+      summary,
       description: buildConsultationDescription(params),
       location: CLINIC.addressLines.join(", "),
       start: {

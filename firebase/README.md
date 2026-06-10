@@ -10,12 +10,14 @@ This project expects Firebase **Auth (email/password)**, **Firestore**, and **St
   1. [Enable Cloud Firestore API](https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=kaleidoscope-clinic) for project `kaleidoscope-clinic`
   2. In [Firebase Console → Firestore](https://console.firebase.google.com/project/kaleidoscope-clinic/firestore), click **Create database** if you have not already
   3. Wait a few minutes, then restart the dev server
-- Enable **Storage** (rules are provided).
+- Enable **Storage** (rules are provided). In Console: **Storage → Get started** — this creates your bucket (requires Blaze billing). Until Storage is enabled, local dev can use `CASE_IMAGE_STORAGE=local` in `.env.local` to save uploads under `public/uploads/`.
 
 ## 2) Environment variables
 - Copy `.env.local.example` to `.env.local`
 - Fill values from **Project settings → Your apps → Web app**.
+- Set **`NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`** to your Storage bucket (Firebase Console → Storage → bucket URL). For this project it is typically `kaleidoscope-clinic.firebasestorage.app` (newer projects) or `kaleidoscope-clinic.appspot.com` (older).
 - For server-side Firebase Admin, set **`FIREBASE_SERVICE_ACCOUNT_PATH`** to your downloaded service account JSON file (e.g. `kaleidoscope-clinic-firebase-adminsdk-fbsvc-cf5e0455fa.json` in the project root). You do not need to paste the whole JSON into `.env.local`.
+- Optional: set **`FIREBASE_STORAGE_BUCKET`** if server uploads should use a different bucket than the public client config.
 
 ## 3) Security rules
 Rules live in:

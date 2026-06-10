@@ -80,9 +80,16 @@ export async function POST(req: Request) {
       await resend.emails.send({
         from: `Kaleidoscope Website <${fromEmail}>`,
         to: toEmail,
-        subject: `New Enquiry: ${cleaned.name}`,
+        subject:
+          cleaned.sourcePage === "/contact"
+            ? `New contact message: ${cleaned.name}`
+            : `New Enquiry: ${cleaned.name}`,
         html: `
-          <h2 style="font-family:serif;margin:0 0 16px">New consultation enquiry</h2>
+          <h2 style="font-family:serif;margin:0 0 16px">${
+            cleaned.sourcePage === "/contact"
+              ? "New contact message"
+              : "New consultation enquiry"
+          }</h2>
           <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%">
             <tr><td style="padding:6px 12px 6px 0;color:#555;width:130px">Name</td><td style="padding:6px 0"><strong>${cleaned.name}</strong></td></tr>
             <tr><td style="padding:6px 12px 6px 0;color:#555">Email</td><td style="padding:6px 0"><a href="mailto:${cleaned.email}">${cleaned.email}</a></td></tr>

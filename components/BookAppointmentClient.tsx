@@ -6,6 +6,8 @@ import { CtaButton } from "@/components/CtaButton";
 import { CLINIC, getWhatsAppHref } from "@/components/siteLinks";
 import { CLINIC_TIMEZONE, CLINIC_TIMEZONE_LABEL } from "@/lib/booking/timezone";
 
+type ConsultationOption = { slug: string; name: string };
+
 const TZ = CLINIC_TIMEZONE;
 const AVAILABILITY_DAYS = 60;
 
@@ -73,7 +75,11 @@ function formatDisplayDate(dateStr: string): string {
   }).format(dt);
 }
 
-export function BookAppointmentClient() {
+export function BookAppointmentClient({
+  bookableConsultations,
+}: {
+  bookableConsultations: ConsultationOption[];
+}) {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadState, setLoadState] = useState<
     "loading" | "ready" | "error" | "unavailable"
@@ -81,6 +87,7 @@ export function BookAppointmentClient() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
 
+  const [consultationTreatment, setConsultationTreatment] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -153,6 +160,7 @@ export function BookAppointmentClient() {
         body: JSON.stringify({
           slotStart: selectedSlot.slotStartIso,
           slotEnd: selectedSlot.slotEndIso,
+          consultationTreatment,
           patientName: name,
           patientEmail: email,
           patientPhone: phone,
@@ -177,8 +185,21 @@ export function BookAppointmentClient() {
     }
   }
 
+  const consultationNameForSlug = useMemo(() => {
+    const bySlug = new Map(
+      bookableConsultations.map((option) => [option.slug, option.name])
+    );
+    return (slug: string) => bySlug.get(slug);
+  }, [bookableConsultations]);
+
+  const isValidConsultationSlug = useMemo(() => {
+    const slugs = new Set(bookableConsultations.map((option) => option.slug));
+    return (slug: string) => slugs.has(slug);
+  }, [bookableConsultations]);
+
   const canConfirm =
     !!selectedSlot &&
+    isValidConsultationSlug(consultationTreatment) &&
     name.trim().length > 1 &&
     email.includes("@") &&
     phone.trim().length >= 8;
@@ -345,9 +366,36 @@ export function BookAppointmentClient() {
               {selectedSlot.startTime} – {selectedSlot.endTime} (
               {CLINIC_TIMEZONE_LABEL})
             </strong>
+            {consultationTreatment && (
+              <>
+                {" "}
+                ·{" "}
+                <strong className="text-[var(--brand-dark)]">
+                  {consultationNameForSlug(consultationTreatment)}
+                </strong>
+              </>
+            )}
           </p>
 
-          <form onSubmit={onConfirm} className="grid max-w-md gap-4">
+          <form onSubmit={onConfirm} className="grid w-full max-w-md gap-4">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
+                Consultation for
+              </span>
+              <select
+                required
+                value={consultationTreatment}
+                onChange={(e) => setConsultationTreatment(e.target.value)}
+                className="h-11 rounded-xl border border-[var(--brand-dark)]/15 bg-white px-4 text-sm text-[var(--brand-dark)] outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+              >
+                <option value="">Select a treatment or general consultation</option>
+                {bookableConsultations.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="grid gap-1.5">
               <span className="text-xs font-semibold text-[var(--brand-dark)]/70">
                 Full name
@@ -415,7 +463,7 @@ export function BookAppointmentClient() {
             <button
               type="submit"
               disabled={!canConfirm || submitting}
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-[var(--gold)] px-8 text-sm font-semibold text-[var(--ink-on-gold)] shadow-md transition hover:bg-[var(--gold-2)] disabled:opacity-50"
+              className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-full bg-[var(--gold)] px-6 text-sm font-semibold text-[var(--ink-on-gold)] shadow-md transition hover:bg-[var(--gold-2)] disabled:opacity-50 sm:w-auto sm:px-8"
             >
               {submitting ? "Redirecting to payment…" : "Confirm & pay deposit →"}
             </button>

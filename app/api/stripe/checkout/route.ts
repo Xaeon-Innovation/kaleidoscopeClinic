@@ -6,6 +6,10 @@ import { assertSlotStillAvailable } from "@/lib/booking/validateSlot";
 import { createBookingHold } from "@/lib/booking/holds";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
+import {
+  consultationNameForSlug as resolveConsultationName,
+  isValidConsultationSlug as isValidConsultationSlugFromDb,
+} from "@/lib/content/getContent";
 import type { SlotInterval } from "@/lib/calendar/slot";
 
 export const dynamic = "force-dynamic";
@@ -61,17 +65,39 @@ export async function POST(request: Request) {
 
   const slotStart = isoField(body.slotStart);
   const slotEnd = isoField(body.slotEnd);
+  const consultationTreatment = trim(body.consultationTreatment, 80);
   const patientName = trim(body.patientName, 120);
   const patientEmail = trim(body.patientEmail, 320);
   const patientPhone = trim(body.patientPhone, 40);
   const patientNote = trim(body.patientNote, 500);
 
-  if (!slotStart || !slotEnd || !patientName || !patientEmail || !patientPhone) {
+  if (
+    !slotStart ||
+    !slotEnd ||
+    !consultationTreatment ||
+    !patientName ||
+    !patientEmail ||
+    !patientPhone
+  ) {
     return NextResponse.json(
-      { error: "slotStart, slotEnd, patientName, patientEmail, patientPhone are required." },
+      {
+        error:
+          "slotStart, slotEnd, consultationTreatment, patientName, patientEmail, patientPhone are required.",
+      },
       { status: 400 }
     );
   }
+
+  if (!(await isValidConsultationSlugFromDb(consultationTreatment))) {
+    return NextResponse.json(
+      { error: "Invalid consultation treatment selected." },
+      { status: 400 }
+    );
+  }
+
+  const consultationTreatmentName =
+    (await resolveConsultationName(consultationTreatment)) ??
+    consultationTreatment;
 
   if (!patientEmail.includes("@")) {
     return NextResponse.json({ error: "Valid patient email required." }, { status: 400 });
@@ -103,6 +129,8 @@ export async function POST(request: Request) {
     const metadata: Record<string, string> = {
       slotStart: start.toISOString(),
       slotEnd: end.toISOString(),
+      consultationTreatment,
+      consultationTreatmentName,
       patientName,
       patientEmail,
       patientPhone,

@@ -29,9 +29,9 @@ export function WhatsAppWidget() {
   }, []);
 
   return (
-    <div className="fixed bottom-5 right-5 z-[60]">
+    <div className="fixed bottom-[calc(var(--mobile-chrome-height)+1rem)] right-4 z-[60] sm:bottom-5 sm:right-5">
       {open ? (
-        <div className="w-[280px] overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-soft)] ring-1 ring-black/10">
+        <div className="mb-3 w-[min(280px,calc(100vw-2rem))] overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-soft)] ring-1 ring-black/10">
           <div className="flex items-center justify-between bg-[#25D366] px-4 py-3">
             <div className="text-sm font-semibold text-white">WhatsApp</div>
             <button
@@ -60,7 +60,7 @@ export function WhatsAppWidget() {
 
       <button
         onClick={() => setOpen((v) => !v)}
-        className="mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[var(--shadow-soft)] ring-1 ring-black/10 hover:bg-[#1ebe5d]"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[var(--shadow-soft)] ring-1 ring-black/10 hover:bg-[#1ebe5d]"
         aria-label={open ? "Close WhatsApp widget" : "Open WhatsApp widget"}
       >
         <WhatsAppIcon className="h-7 w-7" />
@@ -68,4 +68,3 @@ export function WhatsAppWidget() {
     </div>
   );
 }
-

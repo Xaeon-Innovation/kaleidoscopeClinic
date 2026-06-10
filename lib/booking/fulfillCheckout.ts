@@ -10,6 +10,11 @@ import {
 } from "@/lib/calendar/googleCalendar";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
+import {
+  GENERAL_CONSULTATION_NAME,
+  GENERAL_CONSULTATION_SLUG,
+} from "@/lib/treatments";
+import { consultationNameForSlug as resolveConsultationName } from "@/lib/content/getContent";
 
 export type FulfillResult =
   | { ok: true; status: "confirmed" | "already_confirmed" }
@@ -38,6 +43,12 @@ export async function fulfillPaidCheckoutSession(
   const meta = session.metadata ?? {};
   const slotStart = meta.slotStart;
   const slotEnd = meta.slotEnd;
+  const consultationTreatment =
+    meta.consultationTreatment?.trim() || GENERAL_CONSULTATION_SLUG;
+  const consultationTreatmentName =
+    meta.consultationTreatmentName?.trim() ||
+    (await resolveConsultationName(consultationTreatment)) ||
+    GENERAL_CONSULTATION_NAME;
   const patientName = meta.patientName?.trim();
   const patientEmail = meta.patientEmail?.trim();
   const patientPhone = meta.patientPhone?.trim();
@@ -101,6 +112,7 @@ export async function fulfillPaidCheckoutSession(
       const event = await insertConsultationEvent({
         slotStart: start,
         slotEnd: end,
+        consultationTreatmentName,
         patientName,
         patientEmail,
         patientPhone,
@@ -131,6 +143,8 @@ export async function fulfillPaidCheckoutSession(
         stripePaymentIntentId: pi,
         slotStart: Timestamp.fromDate(start),
         slotEnd: Timestamp.fromDate(end),
+        consultationTreatment,
+        consultationTreatmentName,
         patientName,
         patientEmail,
         patientPhone,

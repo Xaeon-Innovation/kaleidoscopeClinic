@@ -21,7 +21,14 @@ function getUtm() {
   return out;
 }
 
-export function LeadForm({ sourcePage }: { sourcePage: string }) {
+export function LeadForm({
+  sourcePage,
+  variant = "enquiry",
+}: {
+  sourcePage: string;
+  variant?: "enquiry" | "contact";
+}) {
+  const isContact = variant === "contact";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -98,7 +105,7 @@ export function LeadForm({ sourcePage }: { sourcePage: string }) {
       </label>
       <label className="grid gap-1">
         <span className="text-xs font-semibold text-black/70">
-          How can we help?
+          {isContact ? "Your message" : "How can we help?"}
         </span>
         <textarea
           className="min-h-28 rounded-2xl border border-black/10 bg-[var(--surface-2)] px-4 py-3 text-sm outline-none focus:border-[var(--gold)]"
@@ -130,12 +137,16 @@ export function LeadForm({ sourcePage }: { sourcePage: string }) {
           ? "Sending…"
           : status === "sent"
             ? "Sent"
-            : "Send enquiry"}
+            : isContact
+              ? "Send message"
+              : "Send enquiry"}
       </button>
 
       {status === "sent" ? (
         <p className="text-xs text-black/60">
-          Thanks — we’ve received your enquiry and will be in touch shortly.
+          {isContact
+            ? "Thanks — your message has been sent. We’ll be in touch shortly."
+            : "Thanks — we’ve received your enquiry and will be in touch shortly."}
         </p>
       ) : status === "error" ? (
         <p className="text-xs text-red-700">
