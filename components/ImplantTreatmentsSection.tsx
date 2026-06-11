@@ -144,20 +144,13 @@ export function ImplantTreatmentsSection({
 
           {others.length > 0 && (
             <>
-              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div className="space-y-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--charcoal-2)]">
-                    Other treatments
-                  </p>
-                  <h4 className="font-[var(--font-serif)] text-xl font-semibold text-[var(--brand-dark)] md:text-2xl">
-                    Supporting services, clearly separated
-                  </h4>
-                </div>
-                <p className="max-w-md text-sm text-[var(--brand-dark)]/75">
-                  These treatments sit beneath implants in the hierarchy, keeping
-                  the layout calm and elegant while still showing the full
-                  capability of the clinic.
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--charcoal-2)]">
+                  Other treatments
                 </p>
+                <h4 className="font-[var(--font-serif)] text-xl font-semibold text-[var(--brand-dark)] md:text-2xl">
+                  Supporting services, clearly separated
+                </h4>
               </div>
 
               <div className="grid gap-4 md:grid-cols-12 md:gap-5">

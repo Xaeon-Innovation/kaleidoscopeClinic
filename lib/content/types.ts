@@ -34,6 +34,7 @@ export type TeamDoc = {
 export type TestimonialDoc = {
   patientNameInitials: string;
   quote: string;
+  treatment?: string;
   ordering: number;
   published: boolean;
 };

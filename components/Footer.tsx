@@ -7,8 +7,8 @@ import { CLINIC, getWhatsAppHref } from "./siteLinks";
 
 const clinicLinks = [
   { href: "/about", label: "About Us" },
-  { href: "/about", label: "Meet the Team" },
-  { href: "/", label: "Patient Reviews" },
+  { href: "/about#team", label: "Meet the Team" },
+  { href: "/#testimonials", label: "Patient Reviews" },
   { href: "/treatments", label: "Treatments" },
   { href: "/book", label: "Book Online" },
   { href: "/referral", label: "Refer a Patient" },

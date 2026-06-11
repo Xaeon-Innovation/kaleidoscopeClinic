@@ -42,13 +42,16 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
 
+    const sourcePage = String(payload.sourcePage ?? "").slice(0, 100);
     const cleaned = {
       name: String(payload.name ?? "").trim().slice(0, 120),
       email: String(payload.email ?? "").trim().slice(0, 254),
       phone: String(payload.phone ?? "").trim().slice(0, 30),
       message: String(payload.message ?? "").trim().slice(0, 2000),
       preferredContact: payload.preferredContact ?? "form",
-      sourcePage: String(payload.sourcePage ?? "").slice(0, 100),
+      sourcePage,
+      kind: sourcePage === "/contact" ? "contact" : "enquiry",
+      contacted: false,
       utm: payload.utm && typeof payload.utm === "object" ? payload.utm : {},
       createdAt: new Date().toISOString(),
     };
@@ -60,12 +63,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Save to Firebase
+    // 1. Save to Firebase (required for admin dashboard)
+    const db = getAdminDb();
+    if (!db) {
+      console.error("Firebase Admin not configured — lead not saved");
+      return NextResponse.json(
+        { error: "Lead storage unavailable. Please try again later." },
+        { status: 503 }
+      );
+    }
     try {
-      const db = getAdminDb();
-      if (db) await db.collection("leads").add(cleaned);
+      await db.collection("leads").add(cleaned);
     } catch (firebaseErr) {
       console.error("Firebase save failed:", firebaseErr);
+      return NextResponse.json(
+        { error: "Failed to save your message. Please try again." },
+        { status: 500 }
+      );
     }
 
     // 2. Email via Resend

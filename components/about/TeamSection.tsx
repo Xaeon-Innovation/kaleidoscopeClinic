@@ -16,7 +16,7 @@ type TeamSectionProps = {
 
 export function TeamSection({ members }: TeamSectionProps) {
   return (
-    <section id="team" className="bg-[var(--surface-warm)] py-20 sm:py-28">
+    <section id="team" className="scroll-mt-20 bg-[var(--surface-warm)] py-20 sm:py-28">
       <div className="page-section-inner">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

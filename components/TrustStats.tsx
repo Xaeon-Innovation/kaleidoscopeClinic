@@ -2,6 +2,7 @@
 
 import { CtaButton } from "@/components/CtaButton";
 import { LeadSpecialistQuote } from "@/components/LeadSpecialistQuote";
+import { defaultTestimonialDisplay } from "@/lib/content/mapTestimonials";
 import { useEffect, useRef, useState } from "react";
 export type TrustStatsTestimonial = {
   quote: string;
@@ -24,26 +25,8 @@ const STATS: StatItem[] = [
   { value: 98, suffix: "%", label: "Recommend Us", smallSuffix: true },
 ];
 
-const DEFAULT_TESTIMONIALS: TrustStatsTestimonial[] = [
-  {
-    quote:
-      "Best dental experience I've ever had. Clean, modern, and the staff genuinely cares about every patient.",
-    name: "Olivia T.",
-    treatment: "Crown Restoration",
-  },
-  {
-    quote:
-      "I had severe dental anxiety. The team here changed my relationship with the dentist forever.",
-    name: "Robert H.",
-    treatment: "Anxiety-Free Care",
-  },
-  {
-    quote:
-      "From booking to follow-up, the experience was flawless. This is how healthcare should be.",
-    name: "Lena S.",
-    treatment: "Orthodontics",
-  },
-];
+const DEFAULT_TESTIMONIALS: TrustStatsTestimonial[] =
+  defaultTestimonialDisplay();
 
 function useCountUp(target: number, isDecimal = false, triggered: boolean) {
   const [count, setCount] = useState(0);
@@ -256,8 +239,9 @@ export function TrustStats({
 
   return (
     <section
+      id="testimonials"
       ref={sectionRef}
-      className="page-section bg-[#0a2523] text-white"
+      className="page-section scroll-mt-20 bg-[#0a2523] text-white"
       aria-labelledby="trust-stats-heading"
     >
       <div className="page-section-inner max-w-[68.75rem]">

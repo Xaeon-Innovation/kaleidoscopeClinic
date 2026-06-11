@@ -18,6 +18,7 @@ import {
   teamDocToDisplay,
   type TeamMemberDisplay,
 } from "./mapTeam";
+import { defaultTestimonialDocs } from "./mapTestimonials";
 import type { CaseDoc, ServiceDoc, TeamDoc, TestimonialDoc } from "./types";
 
 function isFirestoreSetupError(err: unknown): boolean {
@@ -128,7 +129,14 @@ export type { TeamMemberDisplay };
 
 export async function getTestimonials() {
   const all = await listCollection<TestimonialDoc>("testimonials", "ordering");
-  return all.filter((t) => Boolean((t as TestimonialDoc).published));
+  const published = all.filter((t) => Boolean(t.published));
+  if (published.length === 0) {
+    return defaultTestimonialDocs().map((t, index) => ({
+      id: `default-${index}`,
+      ...t,
+    }));
+  }
+  return published;
 }
 
 export async function getCases() {

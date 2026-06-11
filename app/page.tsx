@@ -164,14 +164,11 @@ export default async function Home() {
 
         {/* 7) Testimonials + trust stats */}
         <TrustStats
-          testimonials={
-            testimonials.length > 0
-              ? testimonials.map((t) => ({
-                  quote: t.quote,
-                  name: t.patientNameInitials || "Patient",
-                }))
-              : undefined
-          }
+          testimonials={testimonials.map((t) => ({
+            quote: t.quote,
+            name: t.patientNameInitials || "Patient",
+            treatment: t.treatment,
+          }))}
         />
 
         {/* 8) Final CTA (video background) */}
