@@ -7,6 +7,9 @@ export const CLINIC = {
   whatsappNumberE164NoPlus: "447745325295",
 };
 
+export const GOOGLE_MAPS_URL =
+  "https://www.google.com/maps?q=1+Orchard+St,+London+W1H+6HJ";
+
 export function whatsappHrefFromNumber(
   whatsappDigits: string,
   message?: string

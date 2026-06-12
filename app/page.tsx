@@ -14,6 +14,14 @@ import {
   getTestimonials,
   getTreatmentsContent,
 } from "@/lib/content/getContent";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
+  title: "Kaleidoscope Dental Specialists | Implant Dentist London",
+  description:
+    "GDC-registered specialist implant and restorative dentistry in Marylebone, London. Full arch implants, smile makeovers, and digital treatment planning.",
+  path: "/",
+});
 
 const carouselCases = defaultHomeCases().map((c, index) => ({
   id: `default-${index + 1}`,
@@ -71,8 +79,8 @@ export default async function Home() {
                 Delivered by a Specialist.
               </h1>
               <p className="max-w-prose text-base leading-relaxed text-[var(--brand-dark)]/80 sm:text-lg">
-                Advanced implant and restorative dentistry designed for long-term
-                function, aesthetics, and confidence.
+                Advanced implant and restorative dentistry in Marylebone, London
+                — designed for long-term function, aesthetics, and confidence.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <CtaButton

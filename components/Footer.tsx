@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, ReactNode, useState } from "react";
 import type { OpeningHourRow } from "@/lib/booking/openingHours";
 import type { PublicContactSettings } from "@/lib/site/contactSettingsTypes";
-import { whatsappHrefFromNumber } from "./siteLinks";
+import { CLINIC, GOOGLE_MAPS_URL, whatsappHrefFromNumber } from "./siteLinks";
 
 const clinicLinks = [
   { href: "/about", label: "About Us" },
@@ -14,6 +14,13 @@ const clinicLinks = [
   { href: "/book", label: "Book Online" },
   { href: "/referral", label: "Refer a Patient" },
   { href: "/contact", label: "Contact Us" },
+];
+
+const popularTreatmentLinks = [
+  { href: "/treatments/full-arch-implants", label: "Full Arch Implants" },
+  { href: "/treatments/dental-implants", label: "Dental Implants" },
+  { href: "/treatments/smile-makeovers", label: "Smile Makeovers" },
+  { href: "/treatments/full-mouth-rehabilitation", label: "Full Mouth Rehabilitation" },
 ];
 
 const trustBadges = [
@@ -271,6 +278,19 @@ export default function Footer({
                 </li>
               ))}
             </ul>
+            <p className="site-footer-label mt-8">Popular treatments</p>
+            <ul className="mt-5 space-y-2.5 text-sm">
+              {popularTreatmentLinks.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="text-white/75 transition hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Opening hours */}
@@ -326,6 +346,15 @@ export default function Footer({
 
           <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2">
+              <a
+                href={GOOGLE_MAPS_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-start gap-2 text-white/75 transition hover:text-white"
+              >
+                <IconPin className="mt-0.5 text-[var(--gold)]" />
+                <span>{CLINIC.addressLines.join(", ")}</span>
+              </a>
               {contact.phone ? (
                 <a
                   href={phoneHref(contact.phone)}

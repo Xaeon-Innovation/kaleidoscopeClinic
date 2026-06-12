@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
+import { getSiteBaseUrl } from "@/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/"],
+      disallow: ["/admin/", "/api/"],
     },
-    sitemap: "https://kaleidoscopedental.co.uk/sitemap.xml",
+    sitemap: `${getSiteBaseUrl()}/sitemap.xml`,
   };
 }
 

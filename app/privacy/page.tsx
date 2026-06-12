@@ -2,11 +2,14 @@ import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import { CLINIC } from "@/components/siteLinks";
 import Link from "next/link";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "Privacy Policy",
   description:
     "How Kaleidoscope Dental Specialists collects, uses, and protects your personal information.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

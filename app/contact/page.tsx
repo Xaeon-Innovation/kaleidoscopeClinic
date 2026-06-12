@@ -3,35 +3,21 @@ import { ContactHeroSection } from "@/components/contact/ContactHeroSection";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CLINIC, getWhatsAppHref } from "@/components/siteLinks";
 import { LeadForm } from "@/components/LeadForm";
-import Script from "next/script";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { buildDentistJsonLd } from "@/lib/seo/jsonld";
 
-export const metadata = {
-  title: "Contact",
-};
+export const metadata = buildPageMetadata({
+  title: "Contact Us",
+  description:
+    "Contact Kaleidoscope Dental Specialists in Marylebone, London W1. Call, email, WhatsApp, or send a message — we are here to help with your enquiry.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Dentist",
-    name: "Kaleidoscope Dental Specialists",
-    url: "https://kaleidoscopedental.co.uk",
-    telephone: "+447745325295",
-    email: "Hello@kaleidoscopedentalspecialists@gmail.com",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "1 Orchard St",
-      addressLocality: "London",
-      postalCode: "W1H 6HJ",
-      addressCountry: "GB",
-    },
-  };
   return (
     <div className="min-h-full">
-      <Script
-        id="jsonld-dentist"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd id="jsonld-dentist" data={buildDentistJsonLd()} />
       <SiteHeader />
 
       <ContactHeroSection />

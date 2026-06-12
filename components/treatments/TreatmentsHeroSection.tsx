@@ -87,9 +87,10 @@ export function TreatmentsHeroSection({
             </h1>
 
             <p className="mt-6 text-base leading-relaxed text-[var(--brand-dark)]/78 sm:text-lg">
-              From full-arch implants to preventive maintenance — clear,
-              benefit-led guidance across every stage of your smile, led by
-              specialists who plan for outcomes that last.
+              Specialist dental treatments in Marylebone, London — from full-arch
+              implants to preventive maintenance. Clear, benefit-led guidance
+              across every stage of your smile, led by GDC-registered specialists
+              who plan for outcomes that last.
             </p>
 
             <ul className="mt-8 flex flex-wrap gap-2">

@@ -2,20 +2,20 @@
 export const defaultHomeTestimonials = [
   {
     quote:
-      "Best dental experience I've ever had. Clean, modern, and the staff genuinely cares about every patient.",
+      "The full arch implant treatment changed my life. I can eat, smile, and socialise with complete confidence again.",
     name: "Olivia T.",
-    treatment: "Crown Restoration",
+    treatment: "Full Arch Implants — London",
   },
   {
     quote:
-      "I had severe dental anxiety. The team here changed my relationship with the dentist forever.",
+      "I had severe dental anxiety. The specialist team in Marylebone made every step calm, clear, and genuinely supportive.",
     name: "Robert H.",
-    treatment: "Anxiety-Free Care",
+    treatment: "Dental Implants",
   },
   {
     quote:
-      "From booking to follow-up, the experience was flawless. This is how healthcare should be.",
+      "From consultation to final result, the planning was meticulous. My smile looks natural — exactly what I hoped for.",
     name: "Lena S.",
-    treatment: "Orthodontics",
+    treatment: "Smile Makeover",
   },
 ] as const;

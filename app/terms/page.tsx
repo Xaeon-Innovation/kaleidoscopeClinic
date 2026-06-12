@@ -2,11 +2,14 @@ import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import { CLINIC } from "@/components/siteLinks";
 import Link from "next/link";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "Terms of Service",
   description:
     "Terms governing use of the Kaleidoscope Dental Specialists website and online services.",
-};
+  path: "/terms",
+});
 
 export default function TermsOfServicePage() {
   return (

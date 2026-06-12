@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { TreatmentDisplay } from "@/lib/treatments/mapService";
+import { treatmentImageAlt } from "@/lib/treatments/imageAlt";
 import {
   treatmentCategories,
   type TreatmentCategory,
@@ -59,7 +60,7 @@ export function ImplantTreatmentsSection({
           <article className="group relative min-h-[22rem] overflow-hidden rounded-3xl shadow-2xl shadow-[var(--brand-dark)]/20 transition-transform duration-200 hover:-translate-y-0.5 md:min-h-[19rem]">
             <Image
               src={flagshipImage}
-              alt=""
+              alt={treatmentImageAlt(flagship.name)}
               fill
               className="object-cover object-[center_42%]"
               sizes="(max-width: 768px) 100vw, 1200px"
@@ -109,14 +110,14 @@ export function ImplantTreatmentsSection({
 
                 <div className="relative flex flex-wrap items-center gap-4 pt-1">
                   <Link
-                    href="/treatments"
+                    href={`/treatments/${flagship.slug}`}
                     className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] transition hover:text-white"
                   >
                     Learn more
                     <span aria-hidden>→</span>
                   </Link>
                   <Link
-                    href="/book"
+                    href={`/book?consultation=${encodeURIComponent(flagship.slug)}`}
                     className="inline-flex rounded-full bg-black/40 px-3 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur-sm ring-1 ring-white/15 transition hover:bg-black/55"
                   >
                     Book consultation
@@ -188,7 +189,7 @@ export function ImplantTreatmentsSection({
                           }
                         </span>
                         <Link
-                          href="/treatments"
+                          href={`/treatments/${treatment.slug}`}
                           className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--gold-2)] transition group-hover:text-[var(--brand-dark)]"
                         >
                           Learn more →

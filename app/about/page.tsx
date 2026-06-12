@@ -11,11 +11,14 @@ import { TestimonialsSection } from "@/components/about/TestimonialsSection";
 import { CTASection } from "@/components/about/CTASection";
 import { getTeam } from "@/lib/content/getContent";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "About Us",
   description:
-    "Meet Sherif and Sumaia — GDC-registered Specialists in Prosthodontics at Kaleidoscope Dental Specialists, Marylebone. Learn about our approach, technology, and values.",
-};
+    "Meet Sherif and Sumaia — GDC-registered Specialists in Prosthodontics at Kaleidoscope Dental Specialists, Marylebone, London. Learn about our approach, technology, and values.",
+  path: "/about",
+});
 
 export default async function AboutPage() {
   const team = await getTeam();

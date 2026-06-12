@@ -2,11 +2,14 @@ import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import { CLINIC } from "@/components/siteLinks";
 import Link from "next/link";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "Accessibility",
   description:
     "Our commitment to making the Kaleidoscope Dental Specialists website accessible to all users.",
-};
+  path: "/accessibility",
+});
 
 export default function AccessibilityPage() {
   return (

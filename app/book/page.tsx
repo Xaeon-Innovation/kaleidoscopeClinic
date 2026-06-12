@@ -3,11 +3,14 @@ import { BookHeroSection } from "@/components/book/BookHeroSection";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBookableConsultations } from "@/lib/content/getContent";
 
-export const metadata = {
-  title: "Book a consultation",
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
+  title: "Book a Consultation | Marylebone, London",
   description:
-    "Choose an appointment time and pay a consultation deposit online.",
-};
+    "Book a specialist dental consultation at our Marylebone clinic in London. Choose a time online and pay your deposit securely.",
+  path: "/book",
+});
 
 export default async function BookPage() {
   const bookableConsultations = await getBookableConsultations();

@@ -22,7 +22,7 @@ export function PublicFooterClient({
     <Footer
       clinicName={CLINIC.name}
       contact={contact}
-      tagline="Specialist-led implant and restorative dentistry, focused on predictable, long-lasting outcomes."
+      tagline="Specialist-led implant and restorative dentistry in Marylebone, London — focused on predictable, long-lasting outcomes."
       openingHours={openingHours}
       onSubscribe={(email) => console.log("Subscribed:", email)}
     />

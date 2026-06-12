@@ -2,11 +2,14 @@ import { LegalPage, LegalSection } from "@/components/legal/LegalPage";
 import { CLINIC } from "@/components/siteLinks";
 import Link from "next/link";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "Cookie Policy",
   description:
     "How Kaleidoscope Dental Specialists uses cookies and similar technologies on this website.",
-};
+  path: "/cookies",
+});
 
 export default function CookiePolicyPage() {
   return (

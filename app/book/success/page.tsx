@@ -4,9 +4,14 @@ import { CtaButton } from "@/components/CtaButton";
 import { CLINIC } from "@/components/siteLinks";
 import { fulfillCheckoutBySessionId } from "@/lib/booking/fulfillCheckout";
 
-export const metadata = {
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
   title: "Booking payment received",
-};
+  description: "Your consultation deposit payment has been received.",
+  path: "/book/success",
+  noindex: true,
+});
 
 type SearchParams = Promise<{ session_id?: string }>;
 

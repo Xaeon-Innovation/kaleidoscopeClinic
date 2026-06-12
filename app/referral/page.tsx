@@ -3,11 +3,14 @@ import { ReferralHeroSection } from "@/components/referral/ReferralHeroSection";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CLINIC } from "@/components/siteLinks";
 
-export const metadata = {
-  title: "Professional referral",
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata = buildPageMetadata({
+  title: "Refer a Patient",
   description:
-    "Refer patients for dental implants and related care to Kaleidoscope Dental Specialists.",
-};
+    "Refer patients for dental implants and specialist restorative care to Kaleidoscope Dental Specialists in Marylebone, London.",
+  path: "/referral",
+});
 
 export default function ReferralPage() {
   return (
