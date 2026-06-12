@@ -169,6 +169,10 @@ export function SiteHeader() {
   }, []);
 
   const closeMenu = () => setMenuOpen(false);
+  const isHome = pathname === "/";
+  const headerInnerWidth = isHome
+    ? "max-w-6xl xl:max-w-[82rem] 2xl:max-w-[90rem] min-[1920px]:max-w-[96rem]"
+    : "max-w-6xl";
 
   return (
     <>
@@ -181,7 +185,9 @@ export function SiteHeader() {
             : "border-b border-transparent bg-transparent backdrop-blur-sm",
         ].join(" ")}
       >
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+        <div
+          className={`mx-auto flex w-full ${headerInnerWidth} items-center justify-between gap-3 px-4 py-3.5 sm:px-6`}
+        >
           <Link href="/" className="group flex min-w-0 items-center gap-3">
             <BrandLogo
               size={36}

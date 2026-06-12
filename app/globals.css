@@ -220,6 +220,30 @@ h6 {
   }
 }
 
+.home-layout .page-section-inner {
+  max-width: 72rem;
+}
+
+@media (min-width: 1280px) {
+  .home-layout .page-section-inner {
+    max-width: 82rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .home-layout .page-section-inner {
+    max-width: 90rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .home-layout .page-section-inner {
+    max-width: 96rem;
+  }
+}
+
 @keyframes testimonial-marquee {
   from {
     transform: translateX(0);
