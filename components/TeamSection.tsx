@@ -1,11 +1,18 @@
 import { CtaButton } from "@/components/CtaButton";
+import type { TeamMemberDisplay } from "@/lib/content/mapTeam";
+import Image from "next/image";
 
-export function TeamSection({ className = "" }: { className?: string }) {
+type TeamSectionProps = {
+  members: TeamMemberDisplay[];
+  className?: string;
+};
+
+export function TeamSection({ members, className = "" }: TeamSectionProps) {
   return (
     <div
       role="region"
       aria-labelledby="specialists-heading"
-      className={`rounded-[var(--radius-card)] bg-[var(--surface-warm)] px-4 py-12 sm:px-8 sm:py-14 ${className ?? ""}`}
+      className={`rounded-[var(--radius-card)] bg-[var(--surface-warm)] px-4 py-12 sm:px-8 sm:py-14 ${className}`}
     >
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-xs font-semibold tracking-[0.22em] text-[var(--gold)]">
@@ -25,87 +32,52 @@ export function TeamSection({ className = "" }: { className?: string }) {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-8">
-        <article className="flex flex-col rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/10">
-          <div className="aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-card)] bg-[var(--brand-dark)]/5">
-            <div className="flex h-full w-full items-center justify-center text-xs text-[var(--brand-dark)]/40">
-              Photo
+        {members.map((member) => (
+          <article
+            key={member.id ?? member.name}
+            className="flex flex-col rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/10"
+          >
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-card)] bg-[var(--brand-dark)]/5">
+              <Image
+                src={member.photo}
+                alt={member.name}
+                fill
+                className="object-cover object-top"
+                sizes="(max-width: 768px) 100vw, 400px"
+              />
             </div>
-          </div>
-          <div className="mt-5">
-            <span className="inline-block rounded-md bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold tracking-wide text-[var(--ink-on-gold)]">
-              CONSULTANT IN PROSTHODONTICS
-            </span>
-          </div>
-          <h3 className="mt-4 font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)]">
-            Dr Sherif Elsharkawy
-          </h3>
-          <p className="mt-2 text-[11px] font-semibold leading-snug tracking-wide text-[var(--gold)]">
-            KING&apos;S COLLEGE LONDON
-          </p>
-          <p className="mt-3 text-sm text-[var(--brand-dark)]/85">
-            Specialising in complex restorative and implant dentistry, Dr
-            Elsharkawy focuses on delivering predictable, long-term results
-            through advanced digital workflows and precision treatment planning.
-          </p>
-          <div className="mt-5 grid grid-cols-2 gap-2">
-            {[
-              "Dental Implants",
-              "Full Arch Restoration",
-              "Crowns & Bridges",
-              "Implant Rehabilitation",
-            ].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md border border-[var(--brand-dark)]/25 bg-white px-2 py-2 text-center text-xs font-medium text-[var(--brand-dark)]"
-              >
-                {tag}
+            <div className="mt-5">
+              <span className="inline-block rounded-md bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold tracking-wide text-[var(--ink-on-gold)] uppercase">
+                {member.badge}
               </span>
-            ))}
-          </div>
-        </article>
-
-        <article className="flex flex-col rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/10">
-          <div className="aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-card)] bg-[var(--brand-dark)]/5">
-            <div className="flex h-full w-full items-center justify-center text-xs text-[var(--brand-dark)]/40">
-              Photo
             </div>
-          </div>
-          <div className="mt-5">
-            <span className="inline-block rounded-md bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold tracking-wide text-[var(--ink-on-gold)]">
-              SPECIALIST IN PROSTHODONTICS
-            </span>
-          </div>
-          <h3 className="mt-4 font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)]">
-            Dr Sumaia Rashed
-          </h3>
-          <p className="mt-2 text-[11px] font-semibold leading-snug tracking-wide text-[var(--gold)]">
-            PROSTHODONTICS &amp; FACIAL AESTHETICS
-          </p>
-          <p className="mt-3 text-sm text-[var(--brand-dark)]/85">
-            Dr Rashed combines clinical expertise with an artistic approach to
-            smile and facial harmony, delivering refined, natural results through
-            advanced restorative and aesthetic treatments.
-          </p>
-          <div className="mt-5 grid grid-cols-2 gap-2">
-            {[
-              "Smile Makeovers",
-              "Veneers & Bonding",
-              "Facial Aesthetics",
-              "Full Mouth Rehabilitation",
-            ].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md border border-[var(--brand-dark)]/25 bg-white px-2 py-2 text-center text-xs font-medium text-[var(--brand-dark)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </article>
+            <h3 className="mt-4 font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)]">
+              {member.name}
+            </h3>
+            {(member.subtitle || member.credentials[0]) && (
+              <p className="mt-2 text-[11px] font-semibold leading-snug tracking-wide text-[var(--gold)] uppercase">
+                {member.subtitle ?? member.credentials[0]}
+              </p>
+            )}
+            <p className="mt-3 text-sm text-[var(--brand-dark)]/85">{member.bio}</p>
+            {member.specialties.length > 0 && (
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                {member.specialties.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-md border border-[var(--brand-dark)]/25 bg-white px-2 py-2 text-center text-xs font-medium text-[var(--brand-dark)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
       </div>
 
       <div className="mt-10 flex justify-center">
-        <CtaButton href="/contact#book" variant="primary">
+        <CtaButton href="/book" variant="primary">
           Book consultation
         </CtaButton>
       </div>

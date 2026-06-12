@@ -4,7 +4,7 @@ import { ComponentProps } from "react";
 type Variant = "primary" | "secondary" | "ghost";
 
 const base =
-  "inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold tracking-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-white active:translate-y-px";
+  "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-full px-5 text-sm font-semibold tracking-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-white active:translate-y-px";
 
 const variants: Record<Variant, string> = {
   primary:

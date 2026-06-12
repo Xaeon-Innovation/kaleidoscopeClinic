@@ -60,7 +60,7 @@ const nav = [
     ),
   },
   {
-    label: "Services",
+    label: "Treatments",
     href: "/admin/services",
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">

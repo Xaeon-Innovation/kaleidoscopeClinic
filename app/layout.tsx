@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { PublicChrome } from "@/components/PublicChrome";
+import { PublicFooter } from "@/components/PublicFooter";
+import { montserrat } from "@/lib/fonts";
 
-const bodyFont = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const headingFont = Playfair_Display({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  display: "swap",
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -45,10 +40,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bodyFont.variable} ${headingFont.variable} h-full antialiased`}
+      className={`${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[var(--surface)] text-[var(--foreground)]">
+      <body className="min-h-full flex flex-col bg-[var(--surface)] font-sans text-[var(--foreground)]">
         {children}
+        <PublicFooter />
         <PublicChrome />
       </body>
     </html>

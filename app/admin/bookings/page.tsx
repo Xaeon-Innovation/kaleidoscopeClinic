@@ -13,6 +13,7 @@ import { CLINIC_TIMEZONE, CLINIC_TIMEZONE_LABEL } from "@/lib/booking/timezone";
 
 type Booking = {
   id: string;
+  consultationTreatmentName?: string;
   patientName: string;
   patientEmail: string;
   patientPhone: string;
@@ -195,6 +196,14 @@ export default function AdminBookingsPage() {
                   <p className="mt-0.5 text-xs text-black/50">
                     {b.patientEmail} • {b.patientPhone}
                   </p>
+                  {b.consultationTreatmentName?.trim() && (
+                    <p className="mt-1 text-xs text-black/60">
+                      <span className="font-semibold text-black/50">
+                        Consultation:
+                      </span>{" "}
+                      {b.consultationTreatmentName}
+                    </p>
+                  )}
                   {b.patientNote?.trim() && (
                     <p className="mt-2 text-xs text-black/60">
                       <span className="font-semibold text-black/50">Note:</span>{" "}

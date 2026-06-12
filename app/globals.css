@@ -1,6 +1,39 @@
 @import "tailwindcss";
 
+/* Canela Deck Trial — add .woff2 or .otf files to public/fonts/ */
+@font-face {
+  font-family: "Canela Deck Trial";
+  src:
+    url("/fonts/CanelaDeck-Regular-Trial.woff2") format("woff2"),
+    url("/fonts/CanelaDeck-Regular-Trial.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Canela Deck Trial";
+  src:
+    url("/fonts/CanelaDeck-Medium-Trial.woff2") format("woff2"),
+    url("/fonts/CanelaDeck-Medium-Trial.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Canela Deck Trial";
+  src:
+    url("/fonts/CanelaDeck-Bold-Trial.woff2") format("woff2"),
+    url("/fonts/CanelaDeck-Bold-Trial.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  --mobile-chrome-height: 0px;
+  --font-heading: "Canela Deck Trial", Georgia, "Times New Roman", serif;
   /* Landing-inspired palette */
   --gold: #c8a55a;
   --gold-2: #b99245;
@@ -16,6 +49,13 @@
   --surface-2: #ffffff;
   --surface-warm: #f2ead7;
 
+  /* Section gradients — cream-dominant with a whisper of brand green */
+  --section-cream: #fffef9;
+  --section-cream-mid: #f8f9f4;
+  --section-cream-warm: #f0f4f0;
+  --section-cream-sage: #e4ebe6;
+  --section-cream-sage-deep: #d8e4de;
+
   /* Text */
   --foreground: #0b0f12;
   --muted: #4b5563;
@@ -24,6 +64,16 @@
   --radius-card: 18px;
   --radius-pill: 999px;
   --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.08);
+
+  /* Footer — aligned with TrustStats / brand-dark sections */
+  --footer-accent: var(--gold);
+  --footer-accent-hover: var(--gold-2);
+  --footer-bg: #0a2523;
+  --footer-bg-end: var(--brand-dark);
+  --footer-glass: rgba(255, 255, 255, 0.03);
+  --footer-glass-hover: rgba(255, 255, 255, 0.06);
+  --footer-border: rgba(255, 255, 255, 0.08);
+  --footer-border-strong: rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
@@ -33,9 +83,77 @@
   --font-serif: var(--font-heading);
 }
 
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --mobile-chrome-height: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   background: var(--surface);
   color: var(--foreground);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* Flip card (hero image) */
+.card {
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+.card.is-flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: none;
+  border-radius: 1.5rem;
+}
+
+.card-back {
+  transform: rotateY(180deg);
 }
 
 /* Utilities */
@@ -50,10 +168,179 @@ body {
   padding-right: 1rem;
 }
 
+.page-section {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (max-width: 639px) {
+  .page-section {
+    min-height: auto;
+    padding-top: 2.75rem;
+    padding-bottom: 2.75rem;
+  }
+
+  .page-section.page-section-hero {
+    min-height: 100svh;
+    padding-top: 2rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+.page-section-inner {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 @media (min-width: 640px) {
   .landing-section {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
+
+  .page-section-inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
+@keyframes testimonial-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-marquee-track {
+  animation: testimonial-marquee 50s linear infinite;
+}
+
+.testimonial-marquee:hover .testimonial-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    transform: none;
+  }
+
+  .testimonial-marquee-duplicate {
+    display: none;
+  }
+}
+
+.site-footer {
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--footer-bg) 0%,
+    var(--footer-bg-end) 100%
+  );
+  color: white;
+}
+
+@media (max-width: 639px) {
+  .site-footer {
+    padding-bottom: var(--mobile-chrome-height);
+  }
+}
+
+.site-footer-inner {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .site-footer-inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.site-footer-glass {
+  background: var(--footer-glass-hover);
+  border: 1px solid var(--footer-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(12px);
+}
+
+.site-footer-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.site-footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--footer-border);
+  background: var(--footer-glass);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+}
+
+.site-footer-social {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--footer-border);
+  background: var(--footer-glass);
+  color: var(--gold);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.site-footer-social:hover {
+  color: white;
+  border-color: var(--footer-border-strong);
+  background: var(--footer-glass-hover);
+}
+
+.site-footer-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+  padding: 0.7rem 1.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-on-gold);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.site-footer-cta:hover {
+  background: var(--gold-2);
+}
+
+.site-footer-cta:active {
+  transform: translateY(1px);
+}

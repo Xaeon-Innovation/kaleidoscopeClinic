@@ -511,7 +511,7 @@ export function ReferralForm() {
         <button
           type="submit"
           disabled={!canSend || status === "sending" || status === "sent"}
-          className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full bg-[var(--gold)] px-8 text-sm font-semibold text-[var(--ink-on-gold)] shadow-[var(--shadow-soft)] transition hover:bg-[var(--gold-2)] disabled:opacity-50"
+          className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[var(--gold)] px-8 text-sm font-semibold text-[var(--ink-on-gold)] shadow-[var(--shadow-soft)] transition hover:bg-[var(--gold-2)] disabled:opacity-50 sm:w-auto sm:min-w-[200px]"
         >
           {status === "sending"
             ? "Sending…"
