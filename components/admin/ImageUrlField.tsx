@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { uploadTeamHeadshot } from "@/lib/admin/uploadAdminImage";
 
 type ImageUrlFieldProps = {
   label?: string;
@@ -13,15 +14,6 @@ type ImageUrlFieldProps = {
   /** When true, pasted links are saved on blur instead of every keystroke. */
   deferUrlCommit?: boolean;
 };
-
-async function readApiError(res: Response): Promise<string> {
-  try {
-    const data = (await res.json()) as { error?: string };
-    return data.error ?? "Upload failed.";
-  } catch {
-    return "Upload failed.";
-  }
-}
 
 export function ImageUrlField({
   label = "Headshot",
@@ -47,18 +39,8 @@ export function ImageUrlField({
     setUploading(true);
     setUploadError(null);
     try {
-      const form = new FormData();
-      form.append("file", file);
-      if (memberId) form.append("memberId", memberId);
-
-      const res = await fetch("/api/admin/team/upload", {
-        method: "POST",
-        body: form,
-      });
-      if (!res.ok) throw new Error(await readApiError(res));
-
-      const data = (await res.json()) as { url: string };
-      onChange(data.url);
+      const url = await uploadTeamHeadshot(file, memberId);
+      onChange(url);
       setInputKey((k) => k + 1);
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed.");

@@ -1,28 +1,27 @@
 # Firebase setup
 
-This project expects Firebase **Auth (email/password)**, **Firestore**, and **Storage**.
+This project uses Firebase **Auth (email/password)** and **Firestore**. Image uploads use **Vercel Blob** instead of Firebase Storage (no Blaze plan required). See [docs/vercel.md](../docs/vercel.md) for deployment.
 
 ## 1) Create a Firebase project
 - Create a project in Firebase Console.
 - Enable **Authentication → Email/Password**.
 - Create a **Firestore** database (production mode is fine; rules are provided).
 - If you see `PERMISSION_DENIED: Cloud Firestore API has not been used`, enable the API:
-  1. [Enable Cloud Firestore API](https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=kaleidoscope-clinic) for project `kaleidoscope-clinic`
-  2. In [Firebase Console → Firestore](https://console.firebase.google.com/project/kaleidoscope-clinic/firestore), click **Create database** if you have not already
+  1. [Enable Cloud Firestore API](https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=kaleidoscope-clinic) for your project
+  2. In Firebase Console → Firestore, click **Create database** if you have not already
   3. Wait a few minutes, then restart the dev server
-- Enable **Storage** (rules are provided). In Console: **Storage → Get started** — this creates your bucket (requires Blaze billing). Until Storage is enabled, local dev can use `CASE_IMAGE_STORAGE=local` in `.env.local` to save uploads under `public/uploads/`.
+
+Firebase Storage is **optional** and not used by this app for uploads.
 
 ## 2) Environment variables
-- Copy `.env.local.example` to `.env.local`
-- Fill values from **Project settings → Your apps → Web app**.
-- Set **`NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`** to your Storage bucket (Firebase Console → Storage → bucket URL). For this project it is typically `kaleidoscope-clinic.firebasestorage.app` (newer projects) or `kaleidoscope-clinic.appspot.com` (older).
-- For server-side Firebase Admin, set **`FIREBASE_SERVICE_ACCOUNT_PATH`** to your downloaded service account JSON file (e.g. `kaleidoscope-clinic-firebase-adminsdk-fbsvc-cf5e0455fa.json` in the project root). You do not need to paste the whole JSON into `.env.local`.
-- Optional: set **`FIREBASE_STORAGE_BUCKET`** if server uploads should use a different bucket than the public client config.
+- Copy [`.env.example`](../.env.example) to `.env.local`
+- Fill Firebase values from **Project settings → Your apps → Web app**.
+- For server-side Firebase Admin locally, set **`FIREBASE_SERVICE_ACCOUNT_PATH`** to your downloaded service account JSON file in the project root.
+- On Vercel, use **`FIREBASE_SERVICE_ACCOUNT_JSON`** instead (full JSON string).
+- For image uploads: set **`CASE_IMAGE_STORAGE=local`** in `.env.local` to save under `public/uploads/` without Vercel Blob, or **`blob`** with **`BLOB_READ_WRITE_TOKEN`** from a Vercel Blob store.
 
 ## 3) Security rules
-Rules live in:
-- `firebase/firestore.rules`
-- `firebase/storage.rules`
+Firestore rules live in `firebase/firestore.rules`.
 
 Deploy them with the Firebase CLI (included in this repo as a dev dependency):
 
@@ -32,11 +31,7 @@ npx firebase login
 npm run firebase:rules
 ```
 
-Or deploy rules and storage together:
-
-```bash
-npx firebase deploy --only firestore:rules,storage
-```
+`firebase/storage.rules` is kept for reference if you enable Firebase Storage later; it is not required for current uploads.
 
 ## 4) Admin access
 Admin access is controlled by a Firestore document at:
@@ -69,4 +64,3 @@ Deploy updated Firestore rules (includes server-only `integrations` collection):
 ```bash
 firebase deploy --only firestore:rules
 ```
-

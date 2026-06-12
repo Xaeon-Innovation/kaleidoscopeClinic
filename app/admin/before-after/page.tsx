@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
+import {
+  prepareImageForUpload,
+  uploadCaseImage,
+} from "@/lib/admin/uploadAdminImage";
 
 type CaseDoc = {
   title: string;
@@ -84,14 +88,7 @@ async function uploadCaseImageApi(
   which: "before" | "after",
   file: File
 ) {
-  const form = new FormData();
-  form.append("which", which);
-  form.append("file", file);
-  const res = await fetch(`/api/admin/cases/${id}/images`, {
-    method: "POST",
-    body: form,
-  });
-  if (!res.ok) throw new Error(await readApiError(res));
+  await uploadCaseImage(id, which, file);
 }
 
 async function removeCaseImageApi(id: string, which: "before" | "after") {
@@ -470,7 +467,21 @@ export default function AdminBeforeAfterPage() {
               type="file"
               accept="image/*"
               className="text-xs"
-              onChange={(e) => setDraftBefore(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) {
+                  setDraftBefore(null);
+                  return;
+                }
+                void prepareImageForUpload(file)
+                  .then(setDraftBefore)
+                  .catch((err) => {
+                    setDraftBefore(null);
+                    setError(
+                      err instanceof Error ? err.message : "Could not process image."
+                    );
+                  });
+              }}
             />
           </label>
 
@@ -494,7 +505,21 @@ export default function AdminBeforeAfterPage() {
               type="file"
               accept="image/*"
               className="text-xs"
-              onChange={(e) => setDraftAfter(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) {
+                  setDraftAfter(null);
+                  return;
+                }
+                void prepareImageForUpload(file)
+                  .then(setDraftAfter)
+                  .catch((err) => {
+                    setDraftAfter(null);
+                    setError(
+                      err instanceof Error ? err.message : "Could not process image."
+                    );
+                  });
+              }}
             />
           </label>
         </div>
