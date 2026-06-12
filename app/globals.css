@@ -179,6 +179,12 @@ h6 {
   padding-bottom: 3rem;
 }
 
+/* Scrollable content blocks — avoid viewport-height centering jumps */
+.page-section.page-section-flow {
+  min-height: 0;
+  justify-content: flex-start;
+}
+
 @media (max-width: 639px) {
   .page-section {
     min-height: auto;

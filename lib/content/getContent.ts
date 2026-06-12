@@ -18,6 +18,7 @@ import {
   teamDocToDisplay,
   type TeamMemberDisplay,
 } from "./mapTeam";
+import { defaultHomeCases } from "./defaultCases";
 import { defaultTestimonialDocs } from "./mapTestimonials";
 import type { CaseDoc, ServiceDoc, TeamDoc, TestimonialDoc } from "./types";
 
@@ -141,6 +142,16 @@ export async function getTestimonials() {
 
 export async function getCases() {
   const all = await listCollection<CaseDoc>("cases", "ordering");
-  return all.filter((c) => Boolean((c as CaseDoc).published));
+  const published = all.filter((c) => Boolean((c as CaseDoc).published));
+  const withImages = published.filter(
+    (c) => c.beforeImageUrl && c.afterImageUrl
+  );
+  if (withImages.length === 0) {
+    return defaultHomeCases().map((c, index) => ({
+      id: `default-${index + 1}`,
+      ...c,
+    }));
+  }
+  return withImages;
 }
 

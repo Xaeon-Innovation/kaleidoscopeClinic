@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BookingScheduleForm } from "@/components/admin/BookingScheduleForm";
+import { ContactSettingsForm } from "@/components/admin/ContactSettingsForm";
 
 type CalendarStatus = {
   oauthConfigured: boolean;
@@ -95,7 +96,7 @@ export function AdminSettingsClient() {
           Settings
         </h1>
         <p className="mt-1 text-sm text-black/55">
-          Google Calendar connection and online booking hours.
+          Google Calendar, booking hours, and public contact details.
         </p>
       </div>
 
@@ -226,6 +227,8 @@ export function AdminSettingsClient() {
           </div>
         ) : null}
       </div>
+
+      <ContactSettingsForm />
 
       <BookingScheduleForm />
     </div>

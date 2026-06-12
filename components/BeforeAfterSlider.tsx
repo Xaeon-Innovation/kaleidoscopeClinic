@@ -7,12 +7,15 @@ type Props = {
   afterSrc?: string;
   altBase: string;
   className?: string;
-  initial?: number; // 0..1
+  initial?: number; // 0..1 — divider at 0.5 shows left half before, right half after
 };
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
 }
+
+const imageClass =
+  "pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center";
 
 export function BeforeAfterSlider({
   beforeSrc,
@@ -22,17 +25,15 @@ export function BeforeAfterSlider({
   initial = 0.5,
 }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const afterLayerRef = useRef<HTMLDivElement | null>(null);
-  const dividerRef = useRef<HTMLDivElement | null>(null);
   const [ratio, setRatio] = useState(() => clamp01(initial));
   const [dragging, setDragging] = useState(false);
 
-  const percent = useMemo(() => `${Math.round(ratio * 100)}%`, [ratio]);
-
-  useEffect(() => {
-    if (afterLayerRef.current) afterLayerRef.current.style.width = percent;
-    if (dividerRef.current) dividerRef.current.style.left = percent;
-  }, [percent]);
+  const dividerLeft = useMemo(() => `${ratio * 100}%`, [ratio]);
+  const beforeClip = useMemo(
+    () => `inset(0 ${(1 - ratio) * 100}% 0 0)`,
+    [ratio]
+  );
+  const afterClip = useMemo(() => `inset(0 0 0 ${ratio * 100}%)`, [ratio]);
 
   useEffect(() => {
     function onMove(e: PointerEvent) {
@@ -58,19 +59,20 @@ export function BeforeAfterSlider({
     <div
       ref={rootRef}
       className={[
-        "relative isolate w-full overflow-hidden rounded-[var(--radius-card)] bg-black/5",
+        "relative isolate w-full overflow-hidden bg-black/5",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative aspect-[4/3] w-full select-none">
+      <div className="relative aspect-[4/3] w-full">
         {beforeSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={beforeSrc}
             alt={`${altBase} before`}
-            className="absolute inset-0 h-full w-full object-cover"
+            className={imageClass}
+            style={{ clipPath: beforeClip }}
             draggable={false}
             loading="lazy"
           />
@@ -78,32 +80,32 @@ export function BeforeAfterSlider({
           <div className="absolute inset-0 bg-black/10" />
         )}
 
-        {/* After layer, clipped */}
-        <div ref={afterLayerRef} className="absolute inset-0 overflow-hidden">
-          {afterSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={afterSrc}
-              alt={`${altBase} after`}
-              className="absolute inset-0 h-full w-full object-cover"
-              draggable={false}
-              loading="lazy"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-black/10" />
-          )}
-        </div>
+        {afterSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={afterSrc}
+            alt={`${altBase} after`}
+            className={imageClass}
+            style={{ clipPath: afterClip }}
+            draggable={false}
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-black/10" />
+        )}
 
-        {/* Labels */}
-        <div className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-black/65 px-3 py-1 text-[11px] font-semibold text-white">
+        <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-full bg-black/65 px-3 py-1 text-[11px] font-semibold text-white">
           Before
         </div>
-        <div className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-black/65 px-3 py-1 text-[11px] font-semibold text-white">
+        <div className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full bg-black/65 px-3 py-1 text-[11px] font-semibold text-white">
           After
         </div>
 
-        {/* Divider + handle */}
-        <div ref={dividerRef} className="absolute inset-y-0" aria-hidden>
+        <div
+          className="absolute inset-y-0 z-20"
+          style={{ left: dividerLeft }}
+          aria-hidden
+        >
           <div className="absolute inset-y-0 -translate-x-1/2 w-[2px] bg-white/90 shadow" />
           <button
             type="button"
@@ -125,4 +127,3 @@ export function BeforeAfterSlider({
     </div>
   );
 }
-

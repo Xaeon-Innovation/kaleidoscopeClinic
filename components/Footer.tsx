@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { FormEvent, ReactNode, useState } from "react";
 import type { OpeningHourRow } from "@/lib/booking/openingHours";
-import { CLINIC, getWhatsAppHref } from "./siteLinks";
+import type { PublicContactSettings } from "@/lib/site/contactSettingsTypes";
+import { whatsappHrefFromNumber } from "./siteLinks";
 
 const clinicLinks = [
   { href: "/about", label: "About Us" },
@@ -23,16 +24,15 @@ const trustBadges = [
 ];
 
 const legalLinks = [
-  { href: "#", label: "Privacy Policy" },
-  { href: "#", label: "Terms of Service" },
-  { href: "#", label: "Accessibility" },
-  { href: "#", label: "Cookie Policy" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/accessibility", label: "Accessibility" },
+  { href: "/cookies", label: "Cookie Policy" },
 ];
 
 type FooterProps = {
   clinicName: string;
-  phone: string;
-  email: string;
+  contact: PublicContactSettings;
   tagline: string;
   openingHours: OpeningHourRow[];
   onSubscribe?: (email: string) => void;
@@ -111,24 +111,81 @@ function IconBadge({ className }: { className?: string }) {
   );
 }
 
-function SocialIcon({ label, children }: { label: string; children: ReactNode }) {
+const socialIcons: Record<string, ReactNode> = {
+  Facebook: (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M14 8.5V7.2c0-.7.5-1.2 1.3-1.2H17V3h-2.2C12.8 3 12 4.5 12 6.2V8.5H10v3h2V21h2v-9.5h2.7l.3-3H14Z" />
+    </svg>
+  ),
+  Instagram: (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="4" y="4" width="16" height="16" rx="4.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
+    </svg>
+  ),
+  X: (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="m5 5 14 14M19 5 5 19" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  ),
+  YouTube: (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M10 9.5v5l5-2.5-5-2.5Z" fill="currentColor" />
+      <path
+        d="M21 8.5s-.2-1.6-.9-2.3c-.8-.8-1.7-.8-2.1-.9C16.4 5 12 5 12 5s-4.4 0-5.9.3c-.4 0-1.3.1-2.1.9-.7.7-.9 2.3-.9 2.3S3 10.1 3 11.7v1.6c0 1.6.2 3.2.2 3.2s.2 1.6.9 2.3c.8.8 1.9.8 2.4.9 1.8.2 7.5.2 7.5.2s4.4 0 5.9-.3c.4 0 1.3-.1 2.1-.9.7-.7.9-2.3.9-2.3s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2Z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        fill="none"
+      />
+    </svg>
+  ),
+};
+
+function SocialIcon({
+  label,
+  href,
+}: {
+  label: string;
+  href: string;
+}) {
   return (
-    <a href="#" className="site-footer-social" aria-label={label}>
-      {children}
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="site-footer-social"
+      aria-label={label}
+    >
+      {socialIcons[label]}
     </a>
   );
 }
 
 export default function Footer({
   clinicName,
-  phone,
-  email,
+  contact,
   tagline,
   openingHours,
   onSubscribe,
 }: FooterProps) {
   const [emailInput, setEmailInput] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const whatsappHref = contact.whatsapp
+    ? whatsappHrefFromNumber(contact.whatsapp)
+    : "";
+  const socialLinks = [
+    contact.social.facebook
+      ? { label: "Facebook" as const, href: contact.social.facebook }
+      : null,
+    contact.social.instagram
+      ? { label: "Instagram" as const, href: contact.social.instagram }
+      : null,
+    contact.social.x ? { label: "X" as const, href: contact.social.x } : null,
+    contact.social.youtube
+      ? { label: "YouTube" as const, href: contact.social.youtube }
+      : null,
+  ].filter(Boolean) as { label: string; href: string }[];
 
   function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,36 +247,13 @@ export default function Footer({
               ) : null}
             </form>
 
-            <div className="flex flex-wrap gap-2">
-              <SocialIcon label="Facebook">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M14 8.5V7.2c0-.7.5-1.2 1.3-1.2H17V3h-2.2C12.8 3 12 4.5 12 6.2V8.5H10v3h2V21h2v-9.5h2.7l.3-3H14Z" />
-                </svg>
-              </SocialIcon>
-              <SocialIcon label="Instagram">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <rect x="4" y="4" width="16" height="16" rx="4.5" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
-                </svg>
-              </SocialIcon>
-              <SocialIcon label="X">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="m5 5 14 14M19 5 5 19" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-                </svg>
-              </SocialIcon>
-              <SocialIcon label="YouTube">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M10 9.5v5l5-2.5-5-2.5Z" fill="currentColor" />
-                  <path
-                    d="M21 8.5s-.2-1.6-.9-2.3c-.8-.8-1.7-.8-2.1-.9C16.4 5 12 5 12 5s-4.4 0-5.9.3c-.4 0-1.3.1-2.1.9-.7.7-.9 2.3-.9 2.3S3 10.1 3 11.7v1.6c0 1.6.2 3.2.2 3.2s.2 1.6.9 2.3c.8.8 1.9.8 2.4.9 1.8.2 7.5.2 7.5.2s4.4 0 5.9-.3c.4 0 1.3-.1 2.1-.9.7-.7.9-2.3.9-2.3s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2Z"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    fill="none"
-                  />
-                </svg>
-              </SocialIcon>
-            </div>
+            {socialLinks.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map(({ label, href }) => (
+                  <SocialIcon key={label} label={label} href={href} />
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Clinic links */}
@@ -265,15 +299,17 @@ export default function Footer({
               ))}
             </ul>
 
-            <div className="site-footer-glass mt-5 flex items-center gap-2.5 px-4 py-3">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)]/50 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--gold)]" />
-              </span>
-              <span className="text-xs text-white/75">
-                WhatsApp line — message us anytime
-              </span>
-            </div>
+            {whatsappHref ? (
+              <div className="site-footer-glass mt-5 flex items-center gap-2.5 px-4 py-3">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)]/50 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--gold)]" />
+                </span>
+                <span className="text-xs text-white/75">
+                  WhatsApp line — message us anytime
+                </span>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -290,29 +326,35 @@ export default function Footer({
 
           <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2">
-              <a
-                href={phoneHref(phone)}
-                className="inline-flex items-center gap-2 whitespace-nowrap text-white/75 transition hover:text-white"
-              >
-                <IconPhone className="text-[var(--gold)]" />
-                {phone}
-              </a>
-              <a
-                href={`mailto:${email}`}
-                className="inline-flex min-w-0 max-w-full items-center gap-2 text-white/75 transition hover:text-white"
-              >
-                <IconMail className="text-[var(--gold)]" />
-                <span className="break-all sm:break-words">{email}</span>
-              </a>
-              <a
-                href={getWhatsAppHref()}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 whitespace-nowrap text-white/75 transition hover:text-white"
-              >
-                <span className="text-[var(--gold)]">●</span>
-                Message on WhatsApp
-              </a>
+              {contact.phone ? (
+                <a
+                  href={phoneHref(contact.phone)}
+                  className="inline-flex items-center gap-2 whitespace-nowrap text-white/75 transition hover:text-white"
+                >
+                  <IconPhone className="text-[var(--gold)]" />
+                  {contact.phone}
+                </a>
+              ) : null}
+              {contact.email ? (
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="inline-flex min-w-0 max-w-full items-center gap-2 text-white/75 transition hover:text-white"
+                >
+                  <IconMail className="text-[var(--gold)]" />
+                  <span className="break-all sm:break-words">{contact.email}</span>
+                </a>
+              ) : null}
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 whitespace-nowrap text-white/75 transition hover:text-white"
+                >
+                  <span className="text-[var(--gold)]">●</span>
+                  Message on WhatsApp
+                </a>
+              ) : null}
             </div>
 
             <Link href="/book" className="site-footer-cta shrink-0">

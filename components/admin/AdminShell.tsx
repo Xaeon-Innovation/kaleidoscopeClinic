@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
@@ -151,7 +152,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--brand-dark)]">
         <div className="space-y-3 text-center">
-          <div className="mx-auto h-10 w-10 rounded-full bg-[var(--gold)] animate-pulse" />
+          <BrandLogo size={40} className="mx-auto animate-pulse" />
           <p className="text-sm text-white/50">Loading…</p>
         </div>
       </div>
@@ -201,9 +202,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       >
         {/* Brand */}
         <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--gold)]">
-            <span className="text-sm font-bold text-[var(--brand-dark)]">K</span>
-          </div>
+          <BrandLogo size={32} />
           <div className="leading-tight">
             <div className="text-sm font-semibold text-white">Kaleidoscope</div>
             <div className="text-[9px] tracking-widest text-white/40">ADMIN PORTAL</div>

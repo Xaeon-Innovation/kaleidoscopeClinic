@@ -47,39 +47,4 @@ export function GoldDivider({ className = "" }: { className?: string }) {
   );
 }
 
-export function KaleidoscopeLogo({
-  size = 28,
-  color = "currentColor",
-}: {
-  size?: number;
-  color?: string;
-}) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-hidden="true"
-    >
-      <polygon
-        points="16,2 28,9 28,23 16,30 4,23 4,9"
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-      />
-      <polygon
-        points="16,6 23,10 23,22 16,26 9,22 9,10"
-        fill="none"
-        stroke={color}
-        strokeWidth="1"
-      />
-      <polygon
-        points="16,10 20,12.5 20,19.5 16,22 12,19.5 12,12.5"
-        fill={color}
-        opacity="0.4"
-      />
-      <circle cx="16" cy="16" r="1.5" fill={color} />
-    </svg>
-  );
-}
+export { BrandLogo as KaleidoscopeLogo } from "@/components/BrandLogo";

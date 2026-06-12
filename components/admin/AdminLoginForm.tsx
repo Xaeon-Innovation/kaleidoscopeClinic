@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -44,8 +45,8 @@ export function AdminLoginForm() {
       <div className="w-full max-w-md">
         {/* Logo / brand */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--gold)]">
-            <span className="text-xl font-bold text-[var(--brand-dark)]">K</span>
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center">
+            <BrandLogo size={52} />
           </div>
           <p className="text-xs font-semibold tracking-[0.18em] text-white/50">
             KALEIDOSCOPE DENTAL SPECIALISTS

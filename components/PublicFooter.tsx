@@ -1,10 +1,16 @@
 import { getBookingSettings } from "@/lib/booking/settings";
 import { openingHoursFromSchedule } from "@/lib/booking/openingHours";
+import { getPublicContactSettings } from "@/lib/site/contactSettings";
 import { PublicFooterClient } from "@/components/PublicFooterClient";
 
 export async function PublicFooter() {
-  const settings = await getBookingSettings();
-  const openingHours = openingHoursFromSchedule(settings.days);
+  const [bookingSettings, contact] = await Promise.all([
+    getBookingSettings(),
+    getPublicContactSettings(),
+  ]);
+  const openingHours = openingHoursFromSchedule(bookingSettings.days);
 
-  return <PublicFooterClient openingHours={openingHours} />;
+  return (
+    <PublicFooterClient openingHours={openingHours} contact={contact} />
+  );
 }

@@ -7,9 +7,18 @@ export const CLINIC = {
   whatsappNumberE164NoPlus: "447745325295",
 };
 
-export function getWhatsAppHref(message?: string) {
-  const base = `https://wa.me/${CLINIC.whatsappNumberE164NoPlus}`;
+export function whatsappHrefFromNumber(
+  whatsappDigits: string,
+  message?: string
+) {
+  const digits = whatsappDigits.replace(/\D/g, "");
+  if (!digits) return "";
+  const base = `https://wa.me/${digits}`;
   if (!message) return base;
   return `${base}?text=${encodeURIComponent(message)}`;
+}
+
+export function getWhatsAppHref(message?: string) {
+  return whatsappHrefFromNumber(CLINIC.whatsappNumberE164NoPlus, message);
 }
 

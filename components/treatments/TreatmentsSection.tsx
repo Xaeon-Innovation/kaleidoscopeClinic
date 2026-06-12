@@ -8,7 +8,7 @@ import {
   type TreatmentCategory,
 } from "@/lib/treatments";
 import type { TreatmentDisplay } from "@/lib/treatments/mapService";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
@@ -19,15 +19,9 @@ const categoryLabel: Record<Exclude<TreatmentCategory, "all">, string> = {
   preventive: "Preventive",
 };
 
-const fadeTransition = {
-  duration: 0.25,
-  ease: [0.21, 0.47, 0.32, 0.98] as const,
-};
-
-const layoutTransition = {
-  type: "spring" as const,
-  stiffness: 380,
-  damping: 36,
+const contentTransition = {
+  duration: 0.32,
+  ease: [0.22, 1, 0.36, 1] as const,
 };
 
 function FlagshipCard({
@@ -130,21 +124,21 @@ function FlagshipCard({
 function TreatmentCard({
   treatment,
   imageSrc,
+  index,
 }: {
   treatment: TreatmentDisplay;
   imageSrc?: string;
+  index: number;
 }) {
   const resolvedImage = imageSrc ?? treatment.imageSrc;
 
   return (
     <motion.article
-      layout="position"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       transition={{
-        layout: layoutTransition,
-        opacity: fadeTransition,
+        ...contentTransition,
+        delay: index * 0.04,
       }}
       className="group flex flex-col justify-between rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white p-5 shadow-[var(--shadow-soft)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-md md:p-6"
     >
@@ -220,8 +214,12 @@ export function TreatmentsSection({
   }, [activeCategory, treatments, flagshipSlug]);
 
   const showFlagship =
-    Boolean(flagship) &&
-    (activeCategory === "all" || activeCategory === "implants");
+    activeCategory === "all" || activeCategory === "implants";
+
+  const sectionLabel =
+    activeCategory === "all"
+      ? "Other treatments"
+      : (treatmentCategories.find((c) => c.key === activeCategory)?.label ?? "");
 
   return (
     <>
@@ -230,10 +228,10 @@ export function TreatmentsSection({
       <section
         id="treatments-list"
         aria-labelledby="treatments-list-heading"
-        className="scroll-mt-20 page-section bg-linear-to-br from-[var(--section-cream)] via-[var(--section-cream-warm)] to-[var(--section-cream-sage-deep)]"
+        className="scroll-mt-20 page-section page-section-flow bg-linear-to-br from-[var(--section-cream)] via-[var(--section-cream-warm)] to-[var(--section-cream-sage-deep)]"
       >
         <div className="page-section-inner">
-          <div className="mb-8 space-y-4 md:mb-10">
+          <div className="mb-6 space-y-4 md:mb-8">
             <SectionLabel>Browse by category</SectionLabel>
             <h2
               id="treatments-list-heading"
@@ -257,76 +255,67 @@ export function TreatmentsSection({
                     aria-selected={isActive}
                     onClick={() => setActiveCategory(key)}
                     className={[
-                      "rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition duration-200",
+                      "relative rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition-colors duration-200",
                       isActive
-                        ? "bg-[var(--gold)] text-[var(--ink-on-gold)] shadow-sm"
+                        ? "text-[var(--ink-on-gold)]"
                         : "border border-[var(--brand-dark)]/10 bg-white/70 text-[var(--brand-dark)]/75 hover:border-[var(--gold)]/40 hover:text-[var(--brand-dark)]",
                     ].join(" ")}
                   >
-                    {label}
+                    {isActive ? (
+                      <span className="absolute inset-0 rounded-full bg-[var(--gold)] shadow-sm" />
+                    ) : null}
+                    <span className="relative z-10">{label}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <LayoutGroup>
-            <div className="space-y-8 md:space-y-10">
-              <AnimatePresence initial={false}>
-                {showFlagship && (
-                  <motion.div
-                    key="flagship"
-                    layout="position"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      layout: layoutTransition,
-                      opacity: fadeTransition,
-                    }}
-                  >
-                    <FlagshipCard
-                      treatment={flagship}
-                      imageSrc={treatmentImages[flagship.slug]}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {showFlagship && flagship ? (
+            <div className="mb-6 md:mb-8">
+              <FlagshipCard
+                treatment={flagship}
+                imageSrc={treatmentImages[flagship.slug]}
+              />
+            </div>
+          ) : null}
 
-              {filteredTreatments.length > 0 && (
-                <div className="space-y-4">
-                  {showFlagship && (
-                    <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--charcoal-2)]">
-                        {activeCategory === "all"
-                          ? "Other treatments"
-                          : `${treatmentCategories.find((c) => c.key === activeCategory)?.label ?? ""}`}
-                      </p>
-                    </div>
-                  )}
+          <div className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+            <AnimatePresence mode="sync" initial={false}>
+              <motion.div
+                key={activeCategory}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={contentTransition}
+                className="space-y-4"
+              >
+                {filteredTreatments.length > 0 ? (
+                  <>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--charcoal-2)]">
+                      {sectionLabel}
+                    </p>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-                    <AnimatePresence initial={false} mode="sync">
-                      {filteredTreatments.map((treatment) => (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+                      {filteredTreatments.map((treatment, index) => (
                         <TreatmentCard
                           key={treatment.slug}
                           treatment={treatment}
                           imageSrc={treatmentImages[treatment.slug]}
+                          index={index}
                         />
                       ))}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              )}
-
-              {filteredTreatments.length === 0 && !showFlagship && (
-                <p className="rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white/80 p-6 text-sm text-[var(--brand-dark)]/70">
-                  No treatments in this category yet. Please contact us to discuss
-                  your needs.
-                </p>
-              )}
-            </div>
-          </LayoutGroup>
+                    </div>
+                  </>
+                ) : (
+                  <p className="rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white/80 p-6 text-sm text-[var(--brand-dark)]/70">
+                    No treatments in this category yet. Please contact us to
+                    discuss your needs.
+                  </p>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </section>
     </>

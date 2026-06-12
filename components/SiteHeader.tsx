@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { BrandLogo } from "@/components/BrandLogo";
 import { CLINIC } from "./siteLinks";
 import { CtaButton } from "./CtaButton";
 
@@ -182,7 +183,10 @@ export function SiteHeader() {
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
           <Link href="/" className="group flex min-w-0 items-center gap-3">
-            <div className="h-9 w-9 shrink-0 rounded-full bg-[var(--gold)] ring-2 ring-[var(--gold)]/25 transition group-hover:ring-[var(--gold)]/45" />
+            <BrandLogo
+              size={36}
+              className="transition group-hover:opacity-85"
+            />
             <div className="min-w-0 leading-tight">
               <div className="truncate font-[var(--font-serif)] text-lg font-medium tracking-tight text-[var(--brand-dark)] sm:text-xl">
                 Kaleidoscope

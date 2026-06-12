@@ -8,28 +8,26 @@ import { OurProcessTimeline } from "@/components/OurProcessTimeline";
 import { TrustStats } from "@/components/TrustStats";
 import { TeamSection } from "@/components/TeamSection";
 import { getWhatsAppHref } from "@/components/siteLinks";
+import { defaultHomeCases } from "@/lib/content/defaultCases";
 import {
-  getCases,
   getTeam,
   getTestimonials,
   getTreatmentsContent,
 } from "@/lib/content/getContent";
 
+const carouselCases = defaultHomeCases().map((c, index) => ({
+  id: `default-${index + 1}`,
+  title: c.title,
+  beforeImageUrl: c.beforeImageUrl,
+  afterImageUrl: c.afterImageUrl,
+}));
+
 export default async function Home() {
-  const [cases, testimonials, treatmentsContent, team] = await Promise.all([
-    getCases(),
+  const [testimonials, treatmentsContent, team] = await Promise.all([
     getTestimonials(),
     getTreatmentsContent(),
     getTeam(),
   ]);
-  const carouselCases = cases
-    .filter((c) => c.beforeImageUrl && c.afterImageUrl)
-    .map((c) => ({
-      id: c.id,
-      title: c.title,
-      beforeImageUrl: c.beforeImageUrl,
-      afterImageUrl: c.afterImageUrl,
-    }));
   return (
     <div className="min-h-full">
       <SiteHeader />
@@ -121,8 +119,7 @@ export default async function Home() {
         treatmentImages={treatmentsContent.treatmentImages}
       />
 
-        {carouselCases.length > 0 ? (
-          <section className="page-section bg-linear-to-r from-[var(--section-cream)] via-[var(--section-cream-warm)] to-[var(--section-cream)]">
+        <section className="page-section bg-linear-to-r from-[var(--section-cream)] via-[var(--section-cream-warm)] to-[var(--section-cream)]">
             <div className="page-section-inner">
               <div className="mx-auto mb-8 max-w-xl text-center">
                 <div className="mx-auto inline-flex rounded-full bg-[var(--charcoal)] px-5 py-2 text-xs font-semibold tracking-[0.14em] text-[var(--gold)]">
@@ -144,8 +141,7 @@ export default async function Home() {
                 Book Consultation
               </CtaButton>
             </div>
-          </section>
-        ) : null}
+        </section>
 
         {/* 5) Team / specialists */}
         <section
