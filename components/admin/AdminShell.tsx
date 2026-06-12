@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { onAuthStateChanged, onIdTokenChanged, signOut, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase/client";
@@ -111,6 +111,17 @@ const nav = [
   },
 ];
 
+async function syncServerSession(idToken: string) {
+  const res = await fetch("/api/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+  if (!res.ok) {
+    throw new Error("session sync failed");
+  }
+}
+
 async function signOutAdmin() {
   await fetch("/api/session", { method: "DELETE" });
   await signOut(getFirebaseAuth());
@@ -123,7 +134,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(getFirebaseAuth(), async (user) => {
+    const auth = getFirebaseAuth();
+    const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setState({ status: "signedOut" });
         return;
@@ -134,6 +146,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         else setState({ status: "notAdmin", user });
       } catch {
         setState({ status: "notAdmin", user });
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+    const unsub = onIdTokenChanged(auth, async (user) => {
+      if (!user) return;
+      try {
+        const idToken = await user.getIdToken();
+        await syncServerSession(idToken);
+      } catch {
+        // Client auth may still be valid; server session will be retried on next refresh.
       }
     });
     return () => unsub();

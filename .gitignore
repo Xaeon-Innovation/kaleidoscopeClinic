@@ -38,6 +38,7 @@ yarn-error.log*
 
 # Firebase service account key (use FIREBASE_SERVICE_ACCOUNT_PATH in .env.local)
 *-firebase-adminsdk-*.json
+.vercel-firebase-service-account.oneline.txt
 
 # locally uploaded case images (when CASE_IMAGE_STORAGE=local)
 /public/uploads/

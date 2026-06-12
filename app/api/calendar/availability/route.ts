@@ -11,14 +11,6 @@ export const runtime = "nodejs";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function GET(request: Request) {
-  const cfg = await getCalendarConnectionError();
-  if (cfg) {
-    return NextResponse.json(
-      { error: "Booking unavailable", detail: cfg },
-      { status: 503 }
-    );
-  }
-
   const url = new URL(request.url);
   const from = url.searchParams.get("from");
   const to = url.searchParams.get("to");
@@ -38,8 +30,11 @@ export async function GET(request: Request) {
   }
 
   try {
+    const calendarDetail = await getCalendarConnectionError();
     const slots = await getSlotsWithStatus(from, to);
     return NextResponse.json({
+      liveCalendar: !calendarDetail,
+      ...(calendarDetail ? { calendarWarning: calendarDetail } : {}),
       slots: slots.map((s) => ({
         start: s.start.toISOString(),
         end: s.end.toISOString(),

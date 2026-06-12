@@ -6,7 +6,7 @@ export function proxy(request: NextRequest) {
 
   // ── Admin route protection ──────────────────────────────────────────────
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    const session = request.cookies.get("__session")?.value;
+    const session = request.cookies.get("__session")?.value; // Firebase session cookie
     if (!session) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("from", pathname);

@@ -26,11 +26,14 @@ export function AdminLoginForm() {
       );
       // Mint a server-readable session cookie so middleware can protect /admin
       const idToken = await cred.user.getIdToken();
-      await fetch("/api/session", {
+      const sessionRes = await fetch("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
       });
+      if (!sessionRes.ok) {
+        throw new Error("session failed");
+      }
       const from = searchParams.get("from") ?? "/admin";
       router.replace(from);
     } catch {

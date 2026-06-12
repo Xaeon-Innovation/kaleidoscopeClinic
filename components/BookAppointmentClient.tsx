@@ -94,9 +94,11 @@ export function BookAppointmentClient({
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [calendarWarning, setCalendarWarning] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoadState("loading");
+    setCalendarWarning(null);
     try {
       const from = ymdInTz(new Date(), TZ);
       const to = addDaysYmd(from, AVAILABILITY_DAYS, TZ);
@@ -114,12 +116,21 @@ export function BookAppointmentClient({
       }
       const data = (await res.json()) as {
         slots?: { start: string; end: string; available?: boolean }[];
+        liveCalendar?: boolean;
+        calendarWarning?: string;
       };
-      setSlots(
-        (data.slots ?? []).map((s) =>
-          mapApiSlot(s.start, s.end, s.available !== false)
-        )
+      const nextSlots = (data.slots ?? []).map((s) =>
+        mapApiSlot(s.start, s.end, s.available !== false)
       );
+      if (nextSlots.length === 0) {
+        setSlots([]);
+        setLoadState("unavailable");
+        return;
+      }
+      setSlots(nextSlots);
+      if (data.liveCalendar === false && data.calendarWarning) {
+        setCalendarWarning(data.calendarWarning);
+      }
       setLoadState("ready");
     } catch {
       setLoadState("error");
@@ -206,6 +217,17 @@ export function BookAppointmentClient({
 
   return (
     <div className="space-y-6">
+      {calendarWarning && loadState === "ready" && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-medium">Showing clinic hours only</p>
+          <p className="mt-1">
+            Live Google Calendar sync is unavailable right now, so times may not
+            reflect existing appointments. You can still book — we&apos;ll confirm
+            availability with you if needed.
+          </p>
+        </div>
+      )}
+
       <div className="rounded-[var(--radius-card)] bg-white p-6 shadow-[var(--shadow-soft)] ring-1 ring-[var(--brand-dark)]/8 sm:p-8">
         <div className="mb-1 flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-bold text-[var(--ink-on-gold)]">
