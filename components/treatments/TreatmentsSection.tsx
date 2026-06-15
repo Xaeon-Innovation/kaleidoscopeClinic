@@ -11,7 +11,6 @@ import type { TreatmentDisplay } from "@/lib/treatments/mapService";
 import { treatmentImageAlt } from "@/lib/treatments/imageAlt";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const categoryLabel: Record<Exclude<TreatmentCategory, "all">, string> = {
@@ -34,7 +33,6 @@ function FlagshipCard({
   imageSrc?: string;
 }) {
   const resolvedImage = imageSrc ?? treatment.imageSrc;
-  const detailHref = `/treatments/${treatment.slug}`;
   const bookHref = `/book?consultation=${encodeURIComponent(treatment.slug)}`;
 
   return (
@@ -92,9 +90,6 @@ function FlagshipCard({
           </ul>
 
           <div className="relative flex flex-wrap items-center gap-3 pt-1">
-            <CtaButton href={detailHref} variant="primary" className="h-10">
-              Learn more
-            </CtaButton>
             <CtaButton href={bookHref} variant="ghost" className="h-10 border-white/20 bg-black/30 text-white hover:bg-black/45">
               Book Consultation
             </CtaButton>
@@ -138,7 +133,6 @@ function TreatmentCard({
   index: number;
 }) {
   const resolvedImage = imageSrc ?? treatment.imageSrc;
-  const detailHref = `/treatments/${treatment.slug}`;
   const bookHref = `/book?consultation=${encodeURIComponent(treatment.slug)}`;
 
   return (
@@ -171,9 +165,7 @@ function TreatmentCard({
         </div>
 
         <h3 className="text-lg font-semibold tracking-tight text-[var(--brand-dark)] md:text-xl">
-          <Link href={detailHref} className="transition hover:text-[var(--gold-2)]">
-            {treatment.name}
-          </Link>
+          {treatment.name}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-[var(--brand-dark)]/70">
           {treatment.subtitle}
@@ -190,9 +182,6 @@ function TreatmentCard({
       </div>
 
       <div className="mt-5 flex flex-col gap-2 border-t border-[var(--brand-dark)]/10 pt-4">
-        <CtaButton href={detailHref} variant="primary" className="h-10 w-full">
-          Learn more
-        </CtaButton>
         <CtaButton href={bookHref} variant="secondary" className="h-10 w-full">
           Book Consultation
         </CtaButton>

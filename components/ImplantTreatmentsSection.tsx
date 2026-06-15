@@ -110,13 +110,6 @@ export function ImplantTreatmentsSection({
 
                 <div className="relative flex flex-wrap items-center gap-4 pt-1">
                   <Link
-                    href={`/treatments/${flagship.slug}`}
-                    className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] transition hover:text-white"
-                  >
-                    Learn more
-                    <span aria-hidden>→</span>
-                  </Link>
-                  <Link
                     href={`/book?consultation=${encodeURIComponent(flagship.slug)}`}
                     className="inline-flex rounded-full bg-black/40 px-3 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur-sm ring-1 ring-white/15 transition hover:bg-black/55"
                   >
@@ -188,12 +181,6 @@ export function ImplantTreatmentsSection({
                             )?.label
                           }
                         </span>
-                        <Link
-                          href={`/treatments/${treatment.slug}`}
-                          className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--gold-2)] transition group-hover:text-[var(--brand-dark)]"
-                        >
-                          Learn more →
-                        </Link>
                       </div>
                     </article>
                   );

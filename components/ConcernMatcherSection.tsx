@@ -215,7 +215,7 @@ export function ConcernMatcherSection() {
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:gap-10 xl:gap-14 2xl:gap-16">
+        <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:gap-10 xl:gap-12">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}

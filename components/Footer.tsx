@@ -54,9 +54,13 @@ function phoneHref(phone: string) {
   return digits ? `tel:+${digits}` : "#";
 }
 
-function IconPin({ className = "h-5 w-5" }: { className?: string }) {
+function iconClass(className?: string, size = "h-4 w-4") {
+  return [`${size} shrink-0`, className].filter(Boolean).join(" ");
+}
+
+function IconPin({ className, size }: { className?: string; size?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg className={iconClass(className, size)} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z"
         stroke="currentColor"
@@ -65,10 +69,6 @@ function IconPin({ className = "h-5 w-5" }: { className?: string }) {
       <circle cx="12" cy="11" r="2.25" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
-}
-
-function iconClass(className?: string, size = "h-4 w-4") {
-  return [`${size} shrink-0`, className].filter(Boolean).join(" ");
 }
 
 function IconPhone({ className }: { className?: string }) {
@@ -211,7 +211,7 @@ export default function Footer({
           <div className="space-y-6">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 text-[var(--gold)]">
-                <IconPin className="h-6 w-6" />
+                <IconPin size="h-5 w-5" />
               </div>
               <div>
                 <div className="font-[var(--font-serif)] text-2xl font-medium leading-none text-white">

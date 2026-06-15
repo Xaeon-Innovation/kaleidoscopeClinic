@@ -171,7 +171,7 @@ export function SiteHeader() {
   const closeMenu = () => setMenuOpen(false);
   const isHome = pathname === "/";
   const headerInnerWidth = isHome
-    ? "max-w-6xl xl:max-w-[82rem] 2xl:max-w-[90rem] min-[1920px]:max-w-[96rem]"
+    ? "max-w-6xl xl:max-w-[76rem] 2xl:max-w-[78rem] min-[1920px]:max-w-[80rem]"
     : "max-w-6xl";
 
   return (

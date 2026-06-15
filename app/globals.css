@@ -226,21 +226,21 @@ h6 {
 
 @media (min-width: 1280px) {
   .home-layout .page-section-inner {
-    max-width: 82rem;
+    max-width: 76rem;
   }
 }
 
 @media (min-width: 1536px) {
   .home-layout .page-section-inner {
-    max-width: 90rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    max-width: 78rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
 @media (min-width: 1920px) {
   .home-layout .page-section-inner {
-    max-width: 96rem;
+    max-width: 80rem;
   }
 }
 

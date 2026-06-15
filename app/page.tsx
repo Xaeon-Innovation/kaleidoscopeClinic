@@ -43,7 +43,7 @@ export default async function Home() {
       <section className="page-section page-section-hero relative overflow-hidden bg-linear-to-b from-[var(--section-cream)] via-[var(--section-cream-mid)] to-[var(--section-cream-sage)] text-[var(--brand-dark)]">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <svg
-            className="absolute left-1/2 top-1/2 h-[min(240vh,2800px)] w-auto -translate-x-1/2 -translate-y-1/2 lg:h-[min(260vh,3200px)]"
+            className="absolute left-1/2 top-1/2 h-[min(220vh,2400px)] w-auto -translate-x-1/2 -translate-y-1/2 lg:h-[min(230vh,2600px)]"
             viewBox="0 0 580 820"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +71,7 @@ export default async function Home() {
         </div>
 
         <div className="page-section-inner relative">
-          <div className="relative grid gap-10 md:grid-cols-2 md:items-center xl:gap-14 2xl:gap-16">
+          <div className="relative grid gap-10 md:grid-cols-2 md:items-center xl:gap-12">
             <div className="space-y-6">
             <h1 className="font-[var(--font-serif)] text-4xl leading-[1.05] tracking-tight sm:text-5xl">
                 Permanent,<br />
@@ -192,7 +192,7 @@ export default async function Home() {
             aria-hidden
           />
           <div className="page-section-inner relative z-10">
-          <div className="grid gap-5 md:grid-cols-2 md:items-center xl:gap-12">
+          <div className="grid gap-5 md:grid-cols-2 md:items-center xl:gap-10">
             <div>
               <h2 className="font-[var(--font-serif)] text-2xl tracking-tight sm:text-3xl">
                 Ready to discuss your options?

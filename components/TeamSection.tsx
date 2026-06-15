@@ -31,7 +31,7 @@ export function TeamSection({ members, className = "" }: TeamSectionProps) {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-8 xl:max-w-6xl 2xl:max-w-7xl">
+      <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-8 xl:max-w-[52rem]">
         {members.map((member) => (
           <article
             key={member.id ?? member.name}
