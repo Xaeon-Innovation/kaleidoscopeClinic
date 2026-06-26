@@ -22,7 +22,7 @@ export const treatmentCategories: { key: TreatmentCategory; label: string }[] = 
 ];
 
 export const treatmentImages: Record<string, string> = {
-  "full-arch-implants": "/images/full-arch-implant.png",
+  "full-arch-implants": "/images/full_arch_2.jpeg",
   "dental-implants": "/images/treatments/Dental Implants.jpg",
   "smile-makeovers": "/images/treatments/smile makeover.jpg",
   "full-mouth-rehabilitation": "/images/treatments/Full Mouth Rehabilitation.jpg",

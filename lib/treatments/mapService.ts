@@ -36,12 +36,20 @@ export function serviceDocToTreatment(doc: ServiceDoc): Treatment {
   };
 }
 
+const LEGACY_IMAGE_REDIRECTS: Record<string, string> = {
+  "/images/full-arch-implant.png": "/images/full_arch_2.jpeg",
+  "/images/full arch.jpeg": "/images/full_arch_2.jpeg",
+  "/images/full-arch.jpeg": "/images/full_arch_2.jpeg",
+};
+
 export function resolveTreatmentImage(
   slug: string,
   imageUrl?: string
 ): string | undefined {
   const custom = imageUrl?.trim();
-  if (custom) return custom;
+  if (custom) {
+    return LEGACY_IMAGE_REDIRECTS[custom] ?? custom;
+  }
   return treatmentImages[slug];
 }
 

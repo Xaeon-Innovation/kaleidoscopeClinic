@@ -8,9 +8,11 @@ type ImageUrlFieldProps = {
   value: string;
   onChange: (url: string) => void;
   memberId?: string;
+  onUpload?: (file: File) => Promise<string>;
   disabled?: boolean;
   placeholder?: string;
   aspectClass?: string;
+  helpText?: string;
   /** When true, pasted links are saved on blur instead of every keystroke. */
   deferUrlCommit?: boolean;
 };
@@ -20,9 +22,11 @@ export function ImageUrlField({
   value,
   onChange,
   memberId,
+  onUpload,
   disabled = false,
   placeholder = "/images/dr-sherif-elsharkawy.png",
   aspectClass = "aspect-[3/4]",
+  helpText,
   deferUrlCommit = false,
 }: ImageUrlFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +43,8 @@ export function ImageUrlField({
     setUploading(true);
     setUploadError(null);
     try {
-      const url = await uploadTeamHeadshot(file, memberId);
+      const upload = onUpload ?? ((f) => uploadTeamHeadshot(f, memberId));
+      const url = await upload(file);
       onChange(url);
       setInputKey((k) => k + 1);
     } catch (e) {
@@ -55,17 +60,21 @@ export function ImageUrlField({
     <div className="grid gap-2 md:col-span-2">
       <span className="text-xs font-semibold text-black/70">{label}</span>
 
+      {helpText ? (
+        <p className="text-xs text-black/55">{helpText}</p>
+      ) : null}
+
       <div className="overflow-hidden rounded-2xl bg-black/[0.03] ring-1 ring-black/10">
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={value}
             alt="Preview"
-            className={`${aspectClass} w-full max-w-xs object-cover object-top`}
+            className={`${aspectClass} w-full max-w-md object-cover object-center`}
           />
         ) : (
           <div
-            className={`flex ${aspectClass} max-w-xs items-center justify-center text-xs text-black/45`}
+            className={`flex ${aspectClass} max-w-md items-center justify-center text-xs text-black/45`}
           >
             No image yet
           </div>

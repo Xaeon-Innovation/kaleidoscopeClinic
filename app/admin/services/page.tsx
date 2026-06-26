@@ -7,7 +7,9 @@ import {
   listDocs,
   updateDocById,
 } from "@/components/admin/firestoreCrud";
+import { ImageUrlField } from "@/components/admin/ImageUrlField";
 import type { ServiceCategory, ServiceDoc } from "@/lib/content/types";
+import { uploadServiceImage } from "@/lib/admin/uploadAdminImage";
 import { treatmentImages } from "@/lib/treatments";
 
 type ServiceItem = ServiceDoc & { id: string };
@@ -318,18 +320,24 @@ export default function AdminServicesPage() {
             }
           />
         </label>
-        <label className="grid gap-1 md:col-span-2">
-          <span className="text-xs font-semibold text-black/70">
-            Image URL (optional)
-          </span>
-          <input
-            id={`${idPrefix}-image`}
-            className="h-11 rounded-2xl border border-black/10 px-4 text-sm outline-none focus:border-[var(--gold)]"
-            value={value.imageUrl}
-            onChange={(e) => onChange({ ...value, imageUrl: e.target.value })}
-            placeholder="/images/treatments/example.jpg"
-          />
-        </label>
+        <ImageUrlField
+          label="Treatment image"
+          value={value.imageUrl}
+          onChange={(imageUrl) => onChange({ ...value, imageUrl })}
+          aspectClass="aspect-[16/10]"
+          placeholder={
+            treatmentImages[value.slug.trim()] ??
+            "/images/treatments/example.jpg"
+          }
+          helpText="Upload replaces the default image. Remove to revert to the built-in static image."
+          onUpload={(file) =>
+            uploadServiceImage(
+              file,
+              value.slug.trim() || slugify(value.name),
+              value.imageUrl
+            )
+          }
+        />
         <label className="flex items-center gap-2 text-sm text-black/70">
           <input
             type="checkbox"

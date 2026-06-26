@@ -5,11 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowRight,
-  Baby,
   BadgeDollarSign,
   CheckCircle2,
   Clock3,
-  PhoneCall,
+  GraduationCap,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -27,8 +26,7 @@ type ConcernKey =
   | "cost"
   | "time"
   | "trust"
-  | "kids"
-  | "emergency";
+  | "specialist";
 
 type ConcernItem = {
   key: ConcernKey;
@@ -41,6 +39,19 @@ type ConcernItem = {
 };
 
 const concernData: ConcernItem[] = [
+  {
+    key: "specialist",
+    label: "I need specialist-level care",
+    icon: GraduationCap,
+    tag: "Specialist Care",
+    title: "Every patient is seen by a registered specialist.",
+    text: "At Kaleidoscope, implant and restorative treatment is led by GDC-registered Specialists in Prosthodontics — not referred out, not delegated to general dentists. You get consultant-level expertise from assessment through to your final result.",
+    proofs: [
+      "GDC-registered Specialists in Prosthodontics",
+      "Complex implants and restorative care in-house",
+      "Specialist-led planning from consultation to completion",
+    ],
+  },
   {
     key: "pain",
     label: "The pain will be unbearable",
@@ -93,32 +104,6 @@ const concernData: ConcernItem[] = [
       "Transparent explanations before treatment",
     ],
   },
-  {
-    key: "kids",
-    label: "My child is scared of dentists",
-    icon: Baby,
-    tag: "Child-Friendly Care",
-    title: "A calmer experience for children and parents.",
-    text: "We create a gentle environment for children using reassuring communication, patience, and a treatment pace that builds trust. The goal is not only to finish the visit, but to make the next one easier too.",
-    proofs: [
-      "Warm, child-friendly communication",
-      "Gentle pacing and reassurance",
-      "Focus on long-term trust, not just one visit",
-    ],
-  },
-  {
-    key: "emergency",
-    label: "I need urgent help today",
-    icon: PhoneCall,
-    tag: "Emergency Care",
-    title: "When it hurts, we move quickly.",
-    text: "Dental emergencies need fast action, not long delays. We prioritize urgent cases, respond quickly, and guide you clearly on what to do next so you feel supported from the first call.",
-    proofs: [
-      "Priority scheduling for urgent cases",
-      "Fast response and clear next steps",
-      "Support from first contact to treatment",
-    ],
-  },
 ];
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -127,7 +112,7 @@ export function ConcernMatcherSection() {
   const headingId = useId();
   const panelId = useId();
   const listRef = useRef<HTMLDivElement>(null);
-  const [selectedKey, setSelectedKey] = useState<ConcernKey>("pain");
+  const [selectedKey, setSelectedKey] = useState<ConcernKey>("specialist");
 
   const selectedIndex = useMemo(
     () => concernData.findIndex((item) => item.key === selectedKey),

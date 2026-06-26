@@ -46,6 +46,22 @@ export async function uploadTeamHeadshotBlob(
   return blob.url;
 }
 
+export async function uploadServiceImageBlob(
+  serviceSlug: string,
+  buffer: Buffer,
+  contentType: string,
+  originalName?: string
+): Promise<string> {
+  const ext = imageExtension(contentType, originalName);
+  const pathname = `services/${serviceSlug}/banner.${ext}`;
+  const blob = await put(pathname, buffer, {
+    access: "public",
+    contentType: contentType || "image/jpeg",
+    addRandomSuffix: false,
+  });
+  return blob.url;
+}
+
 export async function uploadReferralFileBlob(
   submissionId: string,
   buffer: Buffer,

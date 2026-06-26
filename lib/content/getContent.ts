@@ -11,6 +11,7 @@ import {
   resolveFlagshipSlug,
   resolveTreatmentImage,
   serviceDocToTreatment,
+  treatmentsToImageMap,
   type TreatmentDisplay,
 } from "@/lib/treatments/mapService";
 import {
@@ -72,14 +73,10 @@ export async function getTreatmentsContent(): Promise<TreatmentsContent> {
       ...t,
       imageSrc: resolveTreatmentImage(t.slug),
     }));
-    const treatmentImages: Record<string, string> = {};
-    for (const t of treatments) {
-      if (t.imageSrc) treatmentImages[t.slug] = t.imageSrc;
-    }
     return {
       treatments,
       flagshipSlug: defaultFlagshipSlug,
-      treatmentImages,
+      treatmentImages: treatmentsToImageMap(treatments),
     };
   }
 
@@ -88,15 +85,10 @@ export async function getTreatmentsContent(): Promise<TreatmentsContent> {
     imageSrc: resolveTreatmentImage(s.slug, s.imageUrl),
   }));
 
-  const treatmentImages: Record<string, string> = {};
-  for (const t of treatments) {
-    if (t.imageSrc) treatmentImages[t.slug] = t.imageSrc;
-  }
-
   return {
     treatments,
     flagshipSlug: resolveFlagshipSlug(published, treatments),
-    treatmentImages,
+    treatmentImages: treatmentsToImageMap(treatments),
   };
 }
 

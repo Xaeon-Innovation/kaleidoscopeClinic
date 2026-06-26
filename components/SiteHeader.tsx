@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { BrandLogo } from "@/components/BrandLogo";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { CLINIC } from "./siteLinks";
 import { CtaButton } from "./CtaButton";
 
@@ -188,20 +188,7 @@ export function SiteHeader() {
         <div
           className={`mx-auto flex w-full ${headerInnerWidth} items-center justify-between gap-3 px-4 py-3.5 sm:px-6`}
         >
-          <Link href="/" className="group flex min-w-0 items-center gap-3">
-            <BrandLogo
-              size={36}
-              className="transition group-hover:opacity-85"
-            />
-            <div className="min-w-0 leading-tight">
-              <div className="truncate font-[var(--font-serif)] text-lg font-medium tracking-tight text-[var(--brand-dark)] sm:text-xl">
-                Kaleidoscope
-              </div>
-              <div className="text-[10px] font-semibold tracking-[0.18em] text-[var(--brand-dark)]/55">
-                DENTAL SPECIALISTS
-              </div>
-            </div>
-          </Link>
+          <BrandWordmark href="/" variant="light" size={36} />
 
           <nav className="hidden items-center gap-6 text-sm lg:flex xl:gap-7">
             {nav.map((item) => {

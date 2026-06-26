@@ -42,7 +42,7 @@ function FlagshipCard({
           src={resolvedImage}
           alt={treatmentImageAlt(treatment.name)}
           fill
-          className="object-cover object-[center_42%]"
+          className="object-cover object-center"
           sizes="(max-width: 768px) 100vw, 1200px"
         />
       )}
@@ -105,15 +105,15 @@ function FlagshipCard({
 
         <aside className="relative hidden items-center justify-end p-8 lg:flex lg:p-10">
           <div className="text-right" aria-hidden>
-            <p className="font-[var(--font-serif)] leading-none text-[#4a2c35] drop-shadow-sm">
-              <span className="text-[clamp(3.5rem,8vw,6rem)] font-medium tracking-tight">
+            <p className="font-[var(--font-serif)] leading-none text-white drop-shadow-[0_2px_12px_rgba(2,44,34,0.85)]">
+              <span className="text-[clamp(3.5rem,8vw,6rem)] font-medium tracking-tight text-[var(--gold)]">
                 1
               </span>
               <span className="ml-1 text-[clamp(1.35rem,3vw,2.35rem)] font-normal lowercase tracking-tight">
                 day
               </span>
             </p>
-            <p className="mt-1 max-w-[14rem] text-xs font-medium uppercase tracking-[0.14em] text-[#4a2c35]/75 md:ml-auto">
+            <p className="mt-1 max-w-[14rem] text-xs font-medium uppercase tracking-[0.14em] text-white/90 drop-shadow-[0_1px_8px_rgba(2,44,34,0.8)] md:ml-auto">
               To a full set of teeth.
             </p>
           </div>

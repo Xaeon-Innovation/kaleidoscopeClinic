@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BrandLogo } from "@/components/BrandLogo";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -47,13 +47,8 @@ export function AdminLoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--brand-dark)] px-4">
       <div className="w-full max-w-md">
         {/* Logo / brand */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center">
-            <BrandLogo size={52} />
-          </div>
-          <p className="text-xs font-semibold tracking-[0.18em] text-white/50">
-            KALEIDOSCOPE DENTAL SPECIALISTS
-          </p>
+        <div className="mb-8 flex justify-center">
+          <BrandWordmark variant="dark" size={52} textScale="lg" align="center" />
         </div>
 
         <div className="rounded-3xl bg-white p-8 shadow-2xl">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, ReactNode, useState } from "react";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import type { OpeningHourRow } from "@/lib/booking/openingHours";
 import type { PublicContactSettings } from "@/lib/site/contactSettingsTypes";
 import { CLINIC, GOOGLE_MAPS_URL, whatsappHrefFromNumber } from "./siteLinks";
@@ -209,19 +210,7 @@ export default function Footer({
       <section className="site-footer-inner grid gap-10 py-10 sm:py-12 lg:grid-cols-[1.35fr_0.9fr_1fr] lg:gap-8">
           {/* Brand + newsletter */}
           <div className="space-y-6">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 text-[var(--gold)]">
-                <IconPin size="h-5 w-5" />
-              </div>
-              <div>
-                <div className="font-[var(--font-serif)] text-2xl font-medium leading-none text-white">
-                  Kaleidoscope
-                </div>
-                <div className="mt-1 font-[var(--font-serif)] text-lg italic text-[var(--gold)]">
-                  Dental Specialists
-                </div>
-              </div>
-            </div>
+            <BrandWordmark variant="dark" size={40} textScale="lg" href="/" />
             <p className="max-w-sm text-sm leading-relaxed text-white/75">
               {tagline}
             </p>

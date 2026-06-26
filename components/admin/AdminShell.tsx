@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { onAuthStateChanged, onIdTokenChanged, signOut, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
@@ -227,12 +228,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         ].join(" ")}
       >
         {/* Brand */}
-        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5">
-          <BrandLogo size={32} />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-white">Kaleidoscope</div>
-            <div className="text-[9px] tracking-widest text-white/40">ADMIN PORTAL</div>
-          </div>
+        <div className="flex h-16 items-center border-b border-white/10 px-5">
+          <BrandWordmark
+            variant="dark"
+            size={32}
+            textScale="compact"
+            suffix={
+              <div className="text-[9px] tracking-widest text-white/40 uppercase">
+                Admin Portal
+              </div>
+            }
+          />
         </div>
 
         {/* Nav */}

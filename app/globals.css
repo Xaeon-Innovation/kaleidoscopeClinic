@@ -117,6 +117,10 @@ h6 {
   font-family: var(--font-heading);
 }
 
+.font-brand-wordmark {
+  font-family: var(--font-heading);
+}
+
 /* Flip card (hero image) */
 .card {
   perspective: 1000px;

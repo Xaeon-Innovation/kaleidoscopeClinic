@@ -28,6 +28,27 @@ export async function uploadTeamHeadshot(
   return data.url;
 }
 
+export async function uploadServiceImage(
+  file: File,
+  slug?: string,
+  previousUrl?: string
+): Promise<string> {
+  const compressed = await compressImage(file);
+  const form = new FormData();
+  form.append("file", compressed);
+  if (slug?.trim()) form.append("slug", slug.trim());
+  if (previousUrl?.trim()) form.append("previousUrl", previousUrl.trim());
+
+  const res = await fetch("/api/admin/services/upload", {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error(await readApiError(res));
+
+  const data = (await res.json()) as { url: string };
+  return data.url;
+}
+
 export async function uploadCaseImage(
   caseId: string,
   which: "before" | "after",

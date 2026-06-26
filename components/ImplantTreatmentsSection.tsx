@@ -31,7 +31,7 @@ export function ImplantTreatmentsSection({
     treatments.find((t) => t.slug === flagshipSlug) ?? treatments[0]!;
   const others = treatments.filter((t) => t.slug !== flagship.slug);
   const flagshipImage =
-    treatmentImages[flagship.slug] ?? flagship.imageSrc ?? "/images/full-arch-implant.png";
+    treatmentImages[flagship.slug] ?? flagship.imageSrc ?? "/images/full_arch_2.jpeg";
 
   return (
     <section
@@ -62,7 +62,7 @@ export function ImplantTreatmentsSection({
               src={flagshipImage}
               alt={treatmentImageAlt(flagship.name)}
               fill
-              className="object-cover object-[center_42%]"
+              className="object-cover object-center"
               sizes="(max-width: 768px) 100vw, 1200px"
               priority={false}
             />
@@ -120,15 +120,15 @@ export function ImplantTreatmentsSection({
 
               <aside className="relative flex items-end justify-start p-6 pb-8 md:items-center md:justify-end md:p-8 lg:p-10">
                 <div className="text-left md:text-right" aria-hidden>
-                  <p className="font-[var(--font-serif)] leading-none text-[#4a2c35] drop-shadow-sm">
-                    <span className="text-[clamp(3.5rem,12vw,6.5rem)] font-medium tracking-tight">
+                  <p className="font-[var(--font-serif)] leading-none text-white drop-shadow-[0_2px_12px_rgba(2,44,34,0.85)]">
+                    <span className="text-[clamp(3.5rem,12vw,6.5rem)] font-medium tracking-tight text-[var(--gold)]">
                       {others.length + 1}
                     </span>
                     <span className="ml-1 text-[clamp(1.35rem,4vw,2.35rem)] font-normal lowercase tracking-tight">
                       treatments
                     </span>
                   </p>
-                  <p className="mt-1 max-w-[14rem] text-xs font-medium uppercase tracking-[0.14em] text-[#4a2c35]/75 md:ml-auto">
+                  <p className="mt-1 max-w-[14rem] text-xs font-medium uppercase tracking-[0.14em] text-white/90 drop-shadow-[0_1px_8px_rgba(2,44,34,0.8)] md:ml-auto">
                     Specialist-led care
                   </p>
                 </div>

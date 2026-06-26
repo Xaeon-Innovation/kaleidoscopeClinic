@@ -18,7 +18,7 @@ const root = path.join(__dirname, "..");
 const flagshipSlug = "full-arch-implants";
 
 const treatmentImages = {
-  "full-arch-implants": "/images/full-arch-implant.png",
+  "full-arch-implants": "/images/full_arch_2.jpeg",
   "dental-implants": "/images/treatments/Dental Implants.jpg",
   "smile-makeovers": "/images/treatments/smile makeover.jpg",
   "full-mouth-rehabilitation": "/images/treatments/Full Mouth Rehabilitation.jpg",
@@ -133,26 +133,40 @@ async function main() {
   initAdmin();
   const db = getFirestore();
   const snap = await db.collection("services").get();
-  const existingSlugs = new Set(
-    snap.docs.map((doc) => String(doc.data().slug ?? ""))
-  );
+  const existing = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  const existingSlugs = new Set(existing.map((doc) => String(doc.slug ?? "")));
 
-  const toCreate = treatments
-    .map((treatment, index) => ({
-      name: treatment.name,
-      slug: treatment.slug,
-      subtitle: treatment.subtitle,
-      shortBenefits: treatment.bullets,
-      category: treatment.category,
-      imageUrl: treatmentImages[treatment.slug],
-      priority: (index + 1) * 10,
-      heroFlag: treatment.slug === flagshipSlug,
-      flagship: treatment.slug === flagshipSlug,
-      published: true,
-    }))
-    .filter((doc) => !existingSlugs.has(doc.slug));
+  const desired = treatments.map((treatment, index) => ({
+    name: treatment.name,
+    slug: treatment.slug,
+    subtitle: treatment.subtitle,
+    shortBenefits: treatment.bullets,
+    category: treatment.category,
+    imageUrl: treatmentImages[treatment.slug],
+    priority: (index + 1) * 10,
+    heroFlag: treatment.slug === flagshipSlug,
+    flagship: treatment.slug === flagshipSlug,
+    published: true,
+  }));
 
-  if (toCreate.length === 0) {
+  const toCreate = desired.filter((doc) => !existingSlugs.has(doc.slug));
+
+  const staleImageUrls = new Set([
+    "/images/full-arch-implant.png",
+    "/images/full arch.jpeg",
+    "/images/full-arch.jpeg",
+  ]);
+  const toUpdate = existing.filter((doc) => {
+    const desiredDoc = desired.find((d) => d.slug === doc.slug);
+    if (!desiredDoc?.imageUrl) return false;
+    const current = String(doc.imageUrl ?? "").trim();
+    return staleImageUrls.has(current) || current !== desiredDoc.imageUrl;
+  });
+
+  if (toCreate.length === 0 && toUpdate.length === 0) {
     console.log(`Nothing to add — ${snap.size} treatment(s) already in Firestore.`);
     return;
   }
@@ -161,12 +175,29 @@ async function main() {
   for (const doc of toCreate) {
     batch.set(db.collection("services").doc(), doc);
   }
+  for (const doc of toUpdate) {
+    const desiredDoc = desired.find((d) => d.slug === doc.slug);
+    if (!desiredDoc?.imageUrl) continue;
+    batch.update(db.collection("services").doc(doc.id), {
+      imageUrl: desiredDoc.imageUrl,
+    });
+  }
   await batch.commit();
 
-  console.log(`Added ${toCreate.length} treatment(s). Total: ${snap.size + toCreate.length}.`);
-  for (const doc of toCreate) {
-    console.log(`  + ${doc.name} (/${doc.slug})`);
+  if (toCreate.length > 0) {
+    console.log(`Added ${toCreate.length} treatment(s).`);
+    for (const doc of toCreate) {
+      console.log(`  + ${doc.name} (/${doc.slug})`);
+    }
   }
+  if (toUpdate.length > 0) {
+    console.log(`Updated ${toUpdate.length} treatment image URL(s).`);
+    for (const doc of toUpdate) {
+      const desiredDoc = desired.find((d) => d.slug === doc.slug);
+      console.log(`  ~ ${doc.slug}: ${desiredDoc?.imageUrl}`);
+    }
+  }
+  console.log(`Total services: ${snap.size + toCreate.length}.`);
 }
 
 main().catch((err) => {
