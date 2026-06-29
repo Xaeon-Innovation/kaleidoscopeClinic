@@ -14,7 +14,16 @@ export const metadata = buildPageMetadata({
   path: "/contact",
 });
 
-export default function ContactPage() {
+type SearchParams = Promise<{ sent?: string }>;
+
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sp = await searchParams;
+  const showThankYou = sp.sent === "1";
+
   return (
     <div className="min-h-full">
       <JsonLd id="jsonld-dentist" data={buildDentistJsonLd()} />
@@ -59,6 +68,18 @@ export default function ContactPage() {
                 Leave your details and message below — we’ll get back to you as
                 soon as we can.
               </p>
+
+              {showThankYou ? (
+                <div
+                  className="mt-6 rounded-2xl border border-[var(--gold)]/30 bg-[var(--surface-warm)] px-4 py-3 text-sm text-[var(--brand-dark)]"
+                  role="status"
+                >
+                  <p className="font-semibold">Thank you for your message.</p>
+                  <p className="mt-1 text-black/70">
+                    We’ve received it and will be in touch shortly.
+                  </p>
+                </div>
+              ) : null}
 
               <LeadForm sourcePage="/contact" variant="contact" />
             </div>

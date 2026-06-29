@@ -34,9 +34,7 @@ export function LeadForm({
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [botField, setBotField] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle"
-  );
+  const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
 
   const canSend = useMemo(() => {
     return (
@@ -61,7 +59,8 @@ export function LeadForm({
         preferredContact: "form",
         utm: getUtm(),
       });
-      setStatus("sent");
+      window.location.assign(`${sourcePage}?sent=1#message`);
+      return;
     } catch {
       setStatus("error");
     }
@@ -130,25 +129,17 @@ export function LeadForm({
 
       <button
         type="submit"
-        disabled={!canSend || status === "sending" || status === "sent"}
+        disabled={!canSend || status === "sending"}
         className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-[var(--gold)] px-6 text-sm font-semibold text-[var(--ink-on-gold)] hover:bg-[var(--gold-2)] disabled:opacity-60"
       >
         {status === "sending"
           ? "Sending…"
-          : status === "sent"
-            ? "Sent"
-            : isContact
-              ? "Send message"
-              : "Send enquiry"}
+          : isContact
+            ? "Send message"
+            : "Send enquiry"}
       </button>
 
-      {status === "sent" ? (
-        <p className="text-xs text-black/60">
-          {isContact
-            ? "Thanks — your message has been sent. We’ll be in touch shortly."
-            : "Thanks — we’ve received your enquiry and will be in touch shortly."}
-        </p>
-      ) : status === "error" ? (
+      {status === "error" ? (
         <p className="text-xs text-red-700">
           Something went wrong. Please try again, or message us on WhatsApp.
         </p>
