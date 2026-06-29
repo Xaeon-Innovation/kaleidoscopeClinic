@@ -193,3 +193,74 @@ export function newsletterSignupStaffEmailHtml(email: string): string {
 
   return emailShell("New newsletter subscriber", table);
 }
+
+export type ReferralDentistThankYouEmailData = {
+  dentistName: string;
+  patientName: string;
+  clinicPhone: string;
+  clinicEmail: string;
+};
+
+export function referralDentistThankYouEmailSubject(): string {
+  return "Thank you for your referral — Kaleidoscope Dental";
+}
+
+export function referralDentistThankYouEmailHtml(
+  data: ReferralDentistThankYouEmailData
+): string {
+  const body = `
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      Dear ${escapeHtml(data.dentistName)},
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      Thank you for referring <strong>${escapeHtml(data.patientName)}</strong> to Kaleidoscope Dental Specialists. We have successfully received your referral and will contact the patient directly to arrange their consultation.
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      If you have any questions, please contact us at
+      <a href="tel:${escapeHtml(data.clinicPhone)}">${escapeHtml(data.clinicPhone)}</a>
+      or <a href="mailto:${escapeHtml(data.clinicEmail)}">${escapeHtml(data.clinicEmail)}</a>.
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333;margin-top:24px">
+      Kind regards,<br/>
+      <strong>Kaleidoscope Dental Specialists</strong>
+    </p>
+  `;
+
+  return emailShell("Referral received", body);
+}
+
+export type ReferralPatientThankYouEmailData = {
+  patientName: string;
+  clinicPhone: string;
+  clinicEmail: string;
+};
+
+export function referralPatientThankYouEmailSubject(): string {
+  return "Your referral has been received — Kaleidoscope Dental";
+}
+
+export function referralPatientThankYouEmailHtml(
+  data: ReferralPatientThankYouEmailData
+): string {
+  const firstName = data.patientName.split(/\s+/)[0] || data.patientName;
+
+  const body = `
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      Dear ${escapeHtml(firstName)},
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      We have received your referral to Kaleidoscope Dental Specialists. We will contact you in the next few days to arrange your consultation.
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      Thank you for your patience. If you have any questions in the meantime, please contact us at
+      <a href="tel:${escapeHtml(data.clinicPhone)}">${escapeHtml(data.clinicPhone)}</a>
+      or <a href="mailto:${escapeHtml(data.clinicEmail)}">${escapeHtml(data.clinicEmail)}</a>.
+    </p>
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333;margin-top:24px">
+      Kind regards,<br/>
+      <strong>Kaleidoscope Dental Specialists</strong>
+    </p>
+  `;
+
+  return emailShell("Referral received", body);
+}

@@ -1,8 +1,5 @@
 "use client";
 
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase/client";
-
 export type ReferringDentist = {
   name: string;
   practice: string;
@@ -39,51 +36,19 @@ export type ReferralPayload = {
   utm?: Record<string, string>;
 };
 
-function must(s: string, label: string) {
-  const t = s.trim();
-  if (!t) throw new Error(`Missing ${label}`);
-  return t;
-}
-
 export async function submitReferral(payload: ReferralPayload) {
-  const rd = payload.referringDentist;
-  const pt = payload.patient;
-
-  const doc = {
-    createdAt: serverTimestamp(),
-    sourcePage: payload.sourcePage,
-    utm: payload.utm ?? {},
-    referringDentist: {
-      name: must(rd.name, "referring dentist name"),
-      practice: must(rd.practice, "practice name"),
-      address: must(rd.address, "practice address"),
-      postcode: must(rd.postcode, "practice postcode"),
-      contact: must(rd.contact, "referring contact number"),
-      email: must(rd.email, "referring email"),
+  const response = await fetch("/api/referral/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-    patient: {
-      name: must(pt.name, "patient name"),
-      dateOfBirth: must(pt.dateOfBirth, "patient date of birth"),
-      address: must(pt.address, "patient address"),
-      postcode: must(pt.postcode, "patient postcode"),
-      contact: must(pt.contact, "patient contact number"),
-      email: must(pt.email, "patient email"),
-      gpAddress: pt.gpAddress.trim(),
-    },
-    implantInterests: payload.implantInterests.filter(Boolean),
-    clinicalHistory: must(payload.clinicalHistory, "clinical history"),
-    medicalHistory: must(payload.medicalHistory, "medical history"),
-    radiographSelections: payload.radiographSelections,
-    radiographOther: payload.radiographOther.trim(),
-    imagingNotes: payload.imagingNotes.trim(),
-    attachmentUrls: payload.attachmentUrls,
-    signature: must(payload.signature, "signature"),
-    signedDate: must(payload.signedDate, "date"),
-  };
+    body: JSON.stringify(payload),
+  });
 
-  if (doc.implantInterests.length === 0) {
-    throw new Error("Select at least one treatment area");
+  if (!response.ok) {
+    const data = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(data?.error ?? "Failed to submit referral");
   }
-
-  await addDoc(collection(getFirebaseDb(), "referrals"), doc);
 }
