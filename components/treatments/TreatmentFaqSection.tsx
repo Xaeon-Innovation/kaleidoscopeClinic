@@ -15,7 +15,7 @@ export function TreatmentFaqSection({
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="page-section bg-[var(--surface-warm)]">
+    <section className="page-section page-section-flow bg-[var(--surface-warm)]">
       <div className="page-section-inner max-w-3xl">
         <h2 className="font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)] sm:text-3xl">
           {heading}

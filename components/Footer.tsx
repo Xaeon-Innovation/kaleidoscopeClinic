@@ -5,6 +5,7 @@ import { FormEvent, ReactNode, useState } from "react";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import type { OpeningHourRow } from "@/lib/booking/openingHours";
 import type { PublicContactSettings } from "@/lib/site/contactSettingsTypes";
+import { submitSubscribe } from "@/lib/subscribers/submitSubscribe";
 import { CLINIC, GOOGLE_MAPS_URL, whatsappHrefFromNumber } from "./siteLinks";
 
 const clinicLinks = [
@@ -43,7 +44,6 @@ type FooterProps = {
   contact: PublicContactSettings;
   tagline: string;
   openingHours: OpeningHourRow[];
-  onSubscribe?: (email: string) => void;
 };
 
 function phoneHref(phone: string) {
@@ -175,10 +175,12 @@ export default function Footer({
   contact,
   tagline,
   openingHours,
-  onSubscribe,
 }: FooterProps) {
   const [emailInput, setEmailInput] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeStatus, setSubscribeStatus] = useState<
+    "idle" | "sending" | "error"
+  >("idle");
   const whatsappHref = contact.whatsapp
     ? whatsappHrefFromNumber(contact.whatsapp)
     : "";
@@ -195,13 +197,19 @@ export default function Footer({
       : null,
   ].filter(Boolean) as { label: string; href: string }[];
 
-  function handleSubscribe(event: FormEvent<HTMLFormElement>) {
+  async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = emailInput.trim();
     if (!trimmed) return;
-    onSubscribe?.(trimmed);
-    setSubscribed(true);
-    setEmailInput("");
+    setSubscribeStatus("sending");
+    try {
+      await submitSubscribe(trimmed);
+      setSubscribed(true);
+      setEmailInput("");
+      setSubscribeStatus("idle");
+    } catch {
+      setSubscribeStatus("error");
+    }
   }
 
   return (
@@ -232,13 +240,18 @@ export default function Footer({
               />
               <button
                 type="submit"
-                className="h-10 w-full rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--ink-on-gold)] transition hover:bg-[var(--gold-2)]"
+                disabled={subscribeStatus === "sending" || subscribed}
+                className="h-10 w-full rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--ink-on-gold)] transition hover:bg-[var(--gold-2)] disabled:opacity-60"
               >
-                Subscribe
+                {subscribeStatus === "sending" ? "Subscribing…" : "Subscribe"}
               </button>
               {subscribed ? (
                 <p className="text-xs text-white/65">
                   Thank you — you&apos;re on the list.
+                </p>
+              ) : subscribeStatus === "error" ? (
+                <p className="text-xs text-red-300">
+                  Something went wrong. Please try again.
                 </p>
               ) : null}
             </form>

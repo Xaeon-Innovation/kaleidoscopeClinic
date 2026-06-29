@@ -44,6 +44,11 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    match /subscribers/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     match /referrals/{docId} {
       allow create: if true;
       allow read, update, delete: if isAdmin();

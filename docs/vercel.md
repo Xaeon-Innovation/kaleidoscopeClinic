@@ -28,7 +28,9 @@ Copy variables from [`.env.example`](../.env.example) into **Vercel → Settings
 | `STRIPE_WEBHOOK_SECRET` | If booking | From Stripe webhook endpoint |
 | `GOOGLE_OAUTH_CLIENT_ID` | If calendar | Google Cloud Console |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | If calendar | Google Cloud Console |
-| `RESEND_API_KEY` | Optional | Contact / lead emails |
+| `RESEND_API_KEY` | For emails | Contact, booking, and newsletter notifications |
+| `RESEND_FROM_EMAIL` | If using Resend | Sender address (default `hello@kaleidoscopedental.co.uk`) |
+| `CONTACT_EMAIL` | If using Resend | Clinic inbox for notifications (default `hello@kaleidoscopedental.co.uk`) |
 
 **Local dev:** copy `.env.example` to `.env.local`. Use `CASE_IMAGE_STORAGE=local` to save uploads under `public/uploads/` without a Blob token.
 

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { Resend } from "resend";
+import { sendClinicEmail } from "@/lib/email/resend";
+import {
+  contactLeadEmailHtml,
+  contactLeadEmailSubject,
+} from "@/lib/email/templates";
 
 // ── Simple in-memory rate limiter (5 req / IP / 60s) ─────────────────────
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -83,40 +87,27 @@ export async function POST(req: Request) {
     }
 
     // 2. Email via Resend
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (resendApiKey) {
-      const resend = new Resend(resendApiKey);
-      const fromEmail =
-        process.env.RESEND_FROM_EMAIL ?? "noreply@kaleidoscopedental.co.uk";
-      const toEmail =
-        process.env.CONTACT_EMAIL ?? "hello@kaleidoscopedental.co.uk";
-
-      await resend.emails.send({
-        from: `Kaleidoscope Website <${fromEmail}>`,
-        to: toEmail,
-        subject:
-          cleaned.sourcePage === "/contact"
-            ? `New contact message: ${cleaned.name}`
-            : `New Enquiry: ${cleaned.name}`,
-        html: `
-          <h2 style="font-family:serif;margin:0 0 16px">${
-            cleaned.sourcePage === "/contact"
-              ? "New contact message"
-              : "New consultation enquiry"
-          }</h2>
-          <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%">
-            <tr><td style="padding:6px 12px 6px 0;color:#555;width:130px">Name</td><td style="padding:6px 0"><strong>${cleaned.name}</strong></td></tr>
-            <tr><td style="padding:6px 12px 6px 0;color:#555">Email</td><td style="padding:6px 0"><a href="mailto:${cleaned.email}">${cleaned.email}</a></td></tr>
-            <tr><td style="padding:6px 12px 6px 0;color:#555">Phone</td><td style="padding:6px 0"><a href="tel:${cleaned.phone}">${cleaned.phone}</a></td></tr>
-            <tr><td style="padding:6px 12px 6px 0;color:#555">Via</td><td style="padding:6px 0">${cleaned.preferredContact}</td></tr>
-            <tr><td style="padding:6px 12px 6px 0;color:#555">Source</td><td style="padding:6px 0">${cleaned.sourcePage}</td></tr>
-          </table>
-          <div style="margin-top:16px;background:#f5f5f5;padding:16px;border-radius:8px;font-family:sans-serif;font-size:14px;line-height:1.6">
-            ${cleaned.message.replace(/\n/g, "<br/>")}
-          </div>
-        `,
-      });
-    }
+    const isContact = cleaned.sourcePage === "/contact";
+    await sendClinicEmail({
+      subject: contactLeadEmailSubject({
+        name: cleaned.name,
+        email: cleaned.email,
+        phone: cleaned.phone,
+        message: cleaned.message,
+        preferredContact: String(cleaned.preferredContact),
+        sourcePage: cleaned.sourcePage,
+        isContact,
+      }),
+      html: contactLeadEmailHtml({
+        name: cleaned.name,
+        email: cleaned.email,
+        phone: cleaned.phone,
+        message: cleaned.message,
+        preferredContact: String(cleaned.preferredContact),
+        sourcePage: cleaned.sourcePage,
+        isContact,
+      }),
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {

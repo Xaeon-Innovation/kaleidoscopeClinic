@@ -15,6 +15,10 @@ import {
   GENERAL_CONSULTATION_SLUG,
 } from "@/lib/treatments";
 import { consultationNameForSlug as resolveConsultationName } from "@/lib/content/getContent";
+import {
+  bookingPayloadFromSession,
+  sendBookingConfirmationEmails,
+} from "@/lib/email/sendBookingEmails";
 
 export type FulfillResult =
   | { ok: true; status: "confirmed" | "already_confirmed" }
@@ -82,6 +86,19 @@ export async function fulfillPaidCheckoutSession(
     calendarEventId &&
     (await calendarEventExists(calendarEventId))
   ) {
+    await sendBookingConfirmationEmails(
+      ref,
+      bookingPayloadFromSession(session, {
+        patientName,
+        patientEmail,
+        patientPhone,
+        consultationTreatmentName,
+        slotStart: start,
+        slotEnd: end,
+        patientNote,
+      }),
+      existing?.emailsSentAt
+    );
     return { ok: true, status: "already_confirmed" };
   }
 
@@ -163,6 +180,20 @@ export async function fulfillPaidCheckoutSession(
   } catch (hErr) {
     console.warn("hold delete failed", sessionId, hErr);
   }
+
+  await sendBookingConfirmationEmails(
+    ref,
+    bookingPayloadFromSession(session, {
+      patientName,
+      patientEmail,
+      patientPhone,
+      consultationTreatmentName,
+      slotStart: start,
+      slotEnd: end,
+      patientNote,
+    }),
+    existing?.emailsSentAt
+  );
 
   return { ok: true, status: "confirmed" };
 }

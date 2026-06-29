@@ -63,7 +63,7 @@ export function TreatmentDetailPage({
 
       <SiteHeader />
 
-      <section className="page-section page-section-hero relative overflow-hidden bg-linear-to-b from-[var(--section-cream)] via-[var(--section-cream-mid)] to-white">
+      <section className="relative overflow-hidden bg-linear-to-b from-[var(--section-cream)] via-[var(--section-cream-mid)] to-white">
         <div className="page-section-inner relative py-14 sm:py-16 lg:py-20">
           <Breadcrumbs items={breadcrumbItems} />
 
@@ -105,7 +105,7 @@ export function TreatmentDetailPage({
       {seo.sections.map((section) => (
         <section
           key={section.heading}
-          className="page-section border-t border-[var(--brand-dark)]/6 bg-white"
+          className="page-section page-section-flow border-t border-[var(--brand-dark)]/6 bg-white"
         >
           <div className="page-section-inner max-w-3xl">
             <h2 className="font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)] sm:text-3xl">
@@ -121,7 +121,7 @@ export function TreatmentDetailPage({
       <TreatmentFaqSection faqs={seo.faqs} />
 
       {relatedTreatments.length > 0 && (
-        <section className="page-section bg-white">
+        <section className="page-section page-section-flow bg-white">
           <div className="page-section-inner">
             <h2 className="font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)] sm:text-3xl">
               Related treatments
@@ -162,7 +162,7 @@ export function TreatmentDetailPage({
         </section>
       )}
 
-      <section className="page-section bg-[var(--section-cream)]">
+      <section className="page-section page-section-flow bg-[var(--section-cream)]">
         <div className="page-section-inner max-w-3xl text-center">
           <h2 className="font-[var(--font-serif)] text-2xl tracking-tight text-[var(--brand-dark)] sm:text-3xl">
             Book your consultation

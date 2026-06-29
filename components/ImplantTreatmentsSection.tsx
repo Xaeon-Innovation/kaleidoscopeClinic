@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { TreatmentDisplay } from "@/lib/treatments/mapService";
 import { treatmentImageAlt } from "@/lib/treatments/imageAlt";
 import {
-  treatmentCategories,
   type TreatmentCategory,
 } from "@/lib/treatments";
 
@@ -13,8 +12,6 @@ const categoryLabel: Record<Exclude<TreatmentCategory, "all">, string> = {
   aesthetic: "Aesthetic",
   preventive: "Preventive",
 };
-
-type CardSize = "medium" | "small";
 
 export function ImplantTreatmentsSection({
   treatments,
@@ -32,6 +29,7 @@ export function ImplantTreatmentsSection({
   const others = treatments.filter((t) => t.slug !== flagship.slug);
   const flagshipImage =
     treatmentImages[flagship.slug] ?? flagship.imageSrc ?? "/images/full_arch_2.jpeg";
+  const flagshipDetailHref = `/treatments/${flagship.slug}`;
 
   return (
     <section
@@ -58,11 +56,16 @@ export function ImplantTreatmentsSection({
 
         <div className="space-y-8 md:space-y-10">
           <article className="group relative min-h-[22rem] overflow-hidden rounded-3xl shadow-2xl shadow-[var(--brand-dark)]/20 transition-transform duration-200 hover:-translate-y-0.5 md:min-h-[19rem]">
+            <Link
+              href={flagshipDetailHref}
+              className="absolute inset-0 z-[1] rounded-3xl"
+              aria-label={`View ${flagship.name}`}
+            />
             <Image
               src={flagshipImage}
               alt={treatmentImageAlt(flagship.name)}
               fill
-              className="object-cover object-center"
+              className="pointer-events-none object-cover object-center"
               sizes="(max-width: 768px) 100vw, 1200px"
               priority={false}
             />
@@ -75,7 +78,7 @@ export function ImplantTreatmentsSection({
               aria-hidden
             />
 
-            <div className="relative grid md:grid-cols-[1.15fr_0.85fr] md:items-stretch">
+            <div className="relative z-10 grid pointer-events-none md:grid-cols-[1.15fr_0.85fr] md:items-stretch">
               <div className="relative space-y-4 p-6 text-white md:p-8 lg:p-10 lg:space-y-5">
                 <p
                   className="pointer-events-none absolute left-6 top-6 max-w-[min(100%,28rem)] font-[var(--font-serif)] text-[clamp(1.75rem,5vw,3.25rem)] font-medium uppercase leading-[0.95] tracking-tight text-white/[0.07] md:left-8 md:top-8 lg:left-10 lg:top-10"
@@ -108,7 +111,7 @@ export function ImplantTreatmentsSection({
                   </ul>
                 )}
 
-                <div className="relative flex flex-wrap items-center gap-4 pt-1">
+                <div className="relative flex flex-wrap items-center gap-4 pt-1 pointer-events-auto">
                   <Link
                     href={`/book?consultation=${encodeURIComponent(flagship.slug)}`}
                     className="inline-flex rounded-full bg-black/40 px-3 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur-sm ring-1 ring-white/15 transition hover:bg-black/55"
@@ -147,42 +150,45 @@ export function ImplantTreatmentsSection({
                 </h4>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-12 md:gap-5">
-                {others.map((treatment, index) => {
-                  const cardSize: CardSize = index < 2 ? "medium" : "small";
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+                {others.map((treatment) => {
+                  const resolvedImage =
+                    treatmentImages[treatment.slug] ?? treatment.imageSrc;
                   return (
-                    <article
+                    <Link
                       key={treatment.slug}
-                      className={[
-                        "group col-span-12 flex flex-col justify-between rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white p-5 shadow-[var(--shadow-soft)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-md",
-                        cardSize === "medium" ? "md:col-span-6" : "md:col-span-4",
-                      ].join(" ")}
+                      href={`/treatments/${treatment.slug}`}
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--brand-dark)]/10 bg-white p-3.5 shadow-[var(--shadow-soft)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-md sm:p-4"
                     >
-                      <div>
-                        <strong className="block text-lg font-semibold tracking-tight text-[var(--brand-dark)] md:text-xl">
-                          {treatment.name}
-                        </strong>
-                        <p className="mt-2 text-sm text-[var(--brand-dark)]/70">
-                          {treatment.subtitle}
-                        </p>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <span className="inline-flex items-center rounded-full bg-[var(--surface-warm)] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--brand-dark)]/55">
-                            {categoryLabel[treatment.category]}
-                          </span>
-                        </div>
+                      <div className="relative mb-3 aspect-[3/2] w-full overflow-hidden rounded-xl bg-[var(--surface-warm)]">
+                        {resolvedImage ? (
+                          <Image
+                            src={resolvedImage}
+                            alt={treatmentImageAlt(treatment.name)}
+                            fill
+                            className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                          />
+                        ) : (
+                          <div className="flex h-full items-end p-3">
+                            <span className="inline-flex rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--brand-dark)]/55 ring-1 ring-[var(--brand-dark)]/10">
+                              {categoryLabel[treatment.category]}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--brand-dark)]/10 pt-3 text-sm text-[var(--brand-dark)]/70">
-                        <span>
-                          {
-                            treatmentCategories.find(
-                              (c) => c.key === treatment.category
-                            )?.label
-                          }
-                        </span>
-                      </div>
-                    </article>
+                      <strong className="block text-sm font-semibold tracking-tight text-[var(--brand-dark)] sm:text-base">
+                        {treatment.name}
+                      </strong>
+                      <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--brand-dark)]/70 sm:text-sm">
+                        {treatment.subtitle}
+                      </p>
+
+                      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-[var(--surface-warm)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--brand-dark)]/55">
+                        {categoryLabel[treatment.category]}
+                      </span>
+                    </Link>
                   );
                 })}
               </div>

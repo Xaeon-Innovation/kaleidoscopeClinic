@@ -29,6 +29,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
     leads: 0,
     leadsThisWeek: 0,
+    subscribers: 0,
     bookings: 0,
     bookingsThisMonth: 0,
     testimonials: 0,
@@ -48,9 +49,10 @@ export default function AdminDashboardPage() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        const [leadsSnap, bookingsSnap, testimonialsSnap, servicesSnap, calRes] =
+        const [leadsSnap, subscribersSnap, bookingsSnap, testimonialsSnap, servicesSnap, calRes] =
           await Promise.all([
             getDocs(collection(db, "leads")),
+            getDocs(collection(db, "subscribers")),
             getDocs(collection(db, "appointments")),
             getDocs(
               query(
@@ -83,6 +85,7 @@ export default function AdminDashboardPage() {
         setStats({
           leads: leadsSnap.size,
           leadsThisWeek,
+          subscribers: subscribersSnap.size,
           bookings: bookingsSnap.size,
           bookingsThisMonth,
           testimonials: testimonialsSnap.size,
@@ -111,6 +114,13 @@ export default function AdminDashboardPage() {
       color: "bg-emerald-50 text-emerald-700 ring-emerald-200",
     },
     {
+      label: "Subscribers",
+      value: loading ? "—" : stats.subscribers,
+      sub: "Newsletter sign-ups",
+      href: "/admin/subscribers",
+      color: "bg-teal-50 text-teal-700 ring-teal-200",
+    },
+    {
       label: "Bookings (30 days)",
       value: loading ? "—" : stats.bookingsThisMonth,
       sub: `${stats.bookings} total`,
@@ -136,6 +146,7 @@ export default function AdminDashboardPage() {
 
   const quickLinks = [
     { href: "/admin/leads", label: "View all leads →" },
+    { href: "/admin/subscribers", label: "View newsletter subscribers →" },
     { href: "/admin/settings", label: "Connect Google Calendar →" },
     { href: "/admin/before-after", label: "Upload before & after →" },
     { href: "/admin/testimonials", label: "Add testimonial →" },

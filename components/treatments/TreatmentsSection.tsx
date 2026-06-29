@@ -11,6 +11,7 @@ import type { TreatmentDisplay } from "@/lib/treatments/mapService";
 import { treatmentImageAlt } from "@/lib/treatments/imageAlt";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const categoryLabel: Record<Exclude<TreatmentCategory, "all">, string> = {
@@ -34,15 +35,21 @@ function FlagshipCard({
 }) {
   const resolvedImage = imageSrc ?? treatment.imageSrc;
   const bookHref = `/book?consultation=${encodeURIComponent(treatment.slug)}`;
+  const detailHref = `/treatments/${treatment.slug}`;
 
   return (
     <article className="group relative min-h-[22rem] overflow-hidden rounded-3xl shadow-2xl shadow-[var(--brand-dark)]/20 transition-transform duration-200 hover:-translate-y-0.5 md:min-h-[19rem]">
+      <Link
+        href={detailHref}
+        className="absolute inset-0 z-[1] rounded-3xl"
+        aria-label={`View ${treatment.name}`}
+      />
       {resolvedImage && (
         <Image
           src={resolvedImage}
           alt={treatmentImageAlt(treatment.name)}
           fill
-          className="object-cover object-center"
+          className="pointer-events-none object-cover object-center"
           sizes="(max-width: 768px) 100vw, 1200px"
         />
       )}
@@ -55,7 +62,7 @@ function FlagshipCard({
         aria-hidden
       />
 
-      <div className="relative grid md:grid-cols-[1.15fr_0.85fr] md:items-stretch">
+      <div className="relative z-10 grid pointer-events-none md:grid-cols-[1.15fr_0.85fr] md:items-stretch">
         <div className="relative space-y-4 p-6 text-white md:p-8 lg:p-10 lg:space-y-5">
           <p
             className="pointer-events-none absolute left-6 top-6 max-w-[min(100%,28rem)] font-[var(--font-serif)] text-[clamp(1.75rem,5vw,3.25rem)] font-medium uppercase leading-[0.95] tracking-tight text-white/[0.07] md:left-8 md:top-8 lg:left-10 lg:top-10"
@@ -89,7 +96,7 @@ function FlagshipCard({
             ))}
           </ul>
 
-          <div className="relative flex flex-wrap items-center gap-3 pt-1">
+          <div className="relative flex flex-wrap items-center gap-3 pt-1 pointer-events-auto">
             <CtaButton href={bookHref} variant="ghost" className="h-10 border-white/20 bg-black/30 text-white hover:bg-black/45">
               Book Consultation
             </CtaButton>
@@ -134,6 +141,7 @@ function TreatmentCard({
 }) {
   const resolvedImage = imageSrc ?? treatment.imageSrc;
   const bookHref = `/book?consultation=${encodeURIComponent(treatment.slug)}`;
+  const detailHref = `/treatments/${treatment.slug}`;
 
   return (
     <motion.article
@@ -143,9 +151,14 @@ function TreatmentCard({
         ...contentTransition,
         delay: index * 0.04,
       }}
-      className="group flex flex-col justify-between rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white p-5 shadow-[var(--shadow-soft)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-md md:p-6"
+      className="group relative flex flex-col justify-between rounded-[var(--radius-card)] border border-[var(--brand-dark)]/10 bg-white p-5 shadow-[var(--shadow-soft)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/50 hover:shadow-md md:p-6"
     >
-      <div>
+      <Link
+        href={detailHref}
+        className="absolute inset-0 z-0 rounded-[var(--radius-card)]"
+        aria-label={`View ${treatment.name}`}
+      />
+      <div className="relative z-10 pointer-events-none">
         <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[var(--surface-warm)]">
           {resolvedImage ? (
             <Image
@@ -181,7 +194,7 @@ function TreatmentCard({
         </ul>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 border-t border-[var(--brand-dark)]/10 pt-4">
+      <div className="relative z-10 mt-5 flex flex-col gap-2 border-t border-[var(--brand-dark)]/10 pt-4 pointer-events-auto">
         <CtaButton href={bookHref} variant="secondary" className="h-10 w-full">
           Book Consultation
         </CtaButton>

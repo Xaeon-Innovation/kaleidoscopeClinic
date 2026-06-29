@@ -49,10 +49,10 @@ export default async function BookSuccessPage({
             </h1>
             <p className="mt-4 text-sm leading-relaxed text-[var(--brand-dark)]/80">
               {fulfilled
-                ? "Your deposit payment was received and your consultation is on our calendar. We will follow up using the contact details you provided."
+                ? "Your deposit payment was received and your consultation is on our calendar. A confirmation email is on its way to you — please also keep the receipt from Stripe for your records."
                 : hasSession
                   ? "Your deposit payment was received. We are confirming your appointment — if nothing appears on our calendar within a few minutes, please contact us."
-                  : "If you completed payment, your consultation should soon appear on our calendar. Keep the confirmation email from Stripe for your records."}
+                  : "If you completed payment, your consultation should soon appear on our calendar. You will receive a confirmation email from us, and a payment receipt from Stripe."}
             </p>
             {fulfillmentError && (
               <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
