@@ -15,6 +15,8 @@ export function buildOrganizationJsonLd() {
     "@type": "Organization",
     name: SITE_NAME,
     url: getSiteBaseUrl(),
+    logo: absoluteUrl("/images/logo-gold.png"),
+    image: absoluteUrl("/images/logo-gold.png"),
     email: CLINIC_CONTACT.email,
     telephone: CLINIC_CONTACT.telephone,
     address: {
@@ -30,6 +32,8 @@ export function buildDentistJsonLd() {
     "@type": "Dentist",
     name: SITE_NAME,
     url: getSiteBaseUrl(),
+    logo: absoluteUrl("/images/logo-gold.png"),
+    image: absoluteUrl("/images/logo-gold.png"),
     telephone: CLINIC_CONTACT.telephone,
     email: CLINIC_CONTACT.email,
     address: {
