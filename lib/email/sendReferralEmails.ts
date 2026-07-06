@@ -1,62 +1,61 @@
 import "server-only";
 
 import { CLINIC } from "@/components/siteLinks";
-import { sendPatientEmail } from "@/lib/email/resend";
+import { sendClinicEmail, sendPatientEmail } from "@/lib/email/resend";
 import {
   referralDentistThankYouEmailHtml,
   referralDentistThankYouEmailSubject,
   referralPatientThankYouEmailHtml,
   referralPatientThankYouEmailSubject,
+  referralStaffEmailHtml,
+  referralStaffEmailSubject,
+  type ReferralStaffEmailData,
 } from "@/lib/email/templates";
 
-type ReferralEmailRecipients = {
-  dentistName: string;
-  dentistEmail: string;
-  patientName: string;
-  patientEmail: string;
-};
+type ReferralEmailPayload = ReferralStaffEmailData;
 
-export async function sendReferralThankYouEmails({
-  dentistName,
-  dentistEmail,
-  patientName,
-  patientEmail,
-}: ReferralEmailRecipients): Promise<void> {
+export async function sendReferralEmails(data: ReferralEmailPayload): Promise<void> {
   if (!process.env.RESEND_API_KEY?.trim()) return;
 
   const clinicPhone = CLINIC.phoneDisplay;
   const clinicEmail = CLINIC.email;
+  const { referringDentist, patient } = data;
 
   try {
-    const [dentistSent, patientSent] = await Promise.all([
+    const [staffSent, dentistSent, patientSent] = await Promise.all([
+      sendClinicEmail({
+        subject: referralStaffEmailSubject(patient.name),
+        html: referralStaffEmailHtml(data),
+      }),
       sendPatientEmail({
-        to: dentistEmail,
+        to: referringDentist.email,
         subject: referralDentistThankYouEmailSubject(),
         html: referralDentistThankYouEmailHtml({
-          dentistName,
-          patientName,
+          dentistName: referringDentist.name,
+          patientName: patient.name,
           clinicPhone,
           clinicEmail,
         }),
       }),
       sendPatientEmail({
-        to: patientEmail,
+        to: patient.email,
         subject: referralPatientThankYouEmailSubject(),
         html: referralPatientThankYouEmailHtml({
-          patientName,
+          patientName: patient.name,
           clinicPhone,
           clinicEmail,
         }),
       }),
     ]);
 
-    if (!dentistSent || !patientSent) {
-      console.warn("referral thank-you emails partially failed", {
+    if (!staffSent || !dentistSent || !patientSent) {
+      console.warn("referral emails partially failed", {
+        staffSent,
         dentistSent,
         patientSent,
       });
     }
   } catch (err) {
-    console.error("sendReferralThankYouEmails failed", err);
+    console.error("sendReferralEmails failed", err);
   }
 }

@@ -8,6 +8,7 @@ import {
   orderBy,
   Timestamp,
 } from "firebase/firestore";
+import { PatientContactActions } from "@/components/admin/PatientContactActions";
 import { getFirebaseDb } from "@/lib/firebase/client";
 import { CLINIC_TIMEZONE, CLINIC_TIMEZONE_LABEL } from "@/lib/booking/timezone";
 
@@ -224,13 +225,14 @@ export default function AdminBookingsPage() {
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <a
-                  href={`mailto:${b.patientEmail}`}
-                  className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-xs font-medium text-[var(--brand-dark)] hover:bg-black/[0.03]"
-                >
-                  Email
-                </a>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <PatientContactActions
+                  email={b.patientEmail}
+                  phone={b.patientPhone}
+                  name={b.patientName}
+                  primaryEmailLabel="Email"
+                  compact
+                />
                 {b.calendarHtmlLink && (
                   <a
                     href={b.calendarHtmlLink}

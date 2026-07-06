@@ -264,3 +264,111 @@ export function referralPatientThankYouEmailHtml(
 
   return emailShell("Referral received", body);
 }
+
+export type ReferralStaffEmailData = {
+  referringDentist: {
+    name: string;
+    practice: string;
+    address: string;
+    postcode: string;
+    contact: string;
+    email: string;
+  };
+  patient: {
+    name: string;
+    dateOfBirth: string;
+    address: string;
+    postcode: string;
+    contact: string;
+    email: string;
+    gpAddress: string;
+  };
+  implantInterests: string[];
+  clinicalHistory: string;
+  medicalHistory: string;
+  radiographSelections: string[];
+  radiographOther: string;
+  imagingNotes: string;
+  attachmentUrls: string[];
+  signature: string;
+  signedDate: string;
+};
+
+export function referralStaffEmailSubject(patientName: string): string {
+  return `New referral: ${patientName}`;
+}
+
+function formatList(items: string[]): string {
+  if (items.length === 0) return "—";
+  return items.map((item) => escapeHtml(item)).join(", ");
+}
+
+function textBlock(label: string, value: string): string {
+  return `
+    <div style="margin-top:16px">
+      <p style="font-family:sans-serif;font-size:13px;font-weight:600;color:#333;margin:0 0 6px">${escapeHtml(label)}</p>
+      <div style="background:#f5f5f5;padding:12px;border-radius:8px;font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+        ${escapeHtml(value).replace(/\n/g, "<br/>")}
+      </div>
+    </div>
+  `;
+}
+
+export function referralStaffEmailHtml(data: ReferralStaffEmailData): string {
+  const rd = data.referringDentist;
+  const pt = data.patient;
+
+  const dentistTable = `
+    <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%">
+      ${tableRow("Name", `<strong>${escapeHtml(rd.name)}</strong>`)}
+      ${tableRow("Practice", escapeHtml(rd.practice))}
+      ${tableRow("Address", escapeHtml(`${rd.address}, ${rd.postcode}`))}
+      ${tableRow("Phone", `<a href="tel:${escapeHtml(rd.contact)}">${escapeHtml(rd.contact)}</a>`)}
+      ${tableRow("Email", `<a href="mailto:${escapeHtml(rd.email)}">${escapeHtml(rd.email)}</a>`)}
+    </table>
+  `;
+
+  const patientTable = `
+    <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;margin-top:16px">
+      ${tableRow("Name", `<strong>${escapeHtml(pt.name)}</strong>`)}
+      ${tableRow("Date of birth", escapeHtml(pt.dateOfBirth))}
+      ${tableRow("Address", escapeHtml(`${pt.address}, ${pt.postcode}`))}
+      ${tableRow("Phone", `<a href="tel:${escapeHtml(pt.contact)}">${escapeHtml(pt.contact)}</a>`)}
+      ${tableRow("Email", `<a href="mailto:${escapeHtml(pt.email)}">${escapeHtml(pt.email)}</a>`)}
+      ${pt.gpAddress ? tableRow("GP practice", escapeHtml(pt.gpAddress)) : ""}
+    </table>
+  `;
+
+  const attachments =
+    data.attachmentUrls.length > 0
+      ? data.attachmentUrls
+          .map(
+            (url, index) =>
+              `<a href="${escapeHtml(url)}">Attachment ${index + 1}</a>`
+          )
+          .join("<br/>")
+      : "—";
+
+  const body = `
+    <p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333">
+      A new implant referral has been submitted on the website.
+    </p>
+    <h3 style="font-family:serif;font-size:16px;margin:20px 0 8px">Referring dentist</h3>
+    ${dentistTable}
+    <h3 style="font-family:serif;font-size:16px;margin:20px 0 8px">Patient</h3>
+    ${patientTable}
+    <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;margin-top:16px">
+      ${tableRow("Treatment interests", formatList(data.implantInterests))}
+      ${tableRow("Radiographs", formatList(data.radiographSelections))}
+      ${data.radiographOther ? tableRow("Other imaging", escapeHtml(data.radiographOther)) : ""}
+      ${tableRow("Signed by", escapeHtml(data.signature))}
+      ${tableRow("Signed date", escapeHtml(data.signedDate))}
+      ${tableRow("Attachments", attachments)}
+    </table>
+    ${textBlock("Clinical history", data.clinicalHistory)}
+    ${textBlock("Medical history", data.medicalHistory)}
+    ${data.imagingNotes ? textBlock("Imaging notes", data.imagingNotes) : ""}
+  `;
+
+  return emailShell("New referral received", body);
+}

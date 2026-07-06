@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase/admin";
-import { sendReferralThankYouEmails } from "@/lib/email/sendReferralEmails";
+import { sendReferralEmails } from "@/lib/email/sendReferralEmails";
 import type { ReferralPayload } from "@/lib/leads/submitReferral";
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -126,11 +126,18 @@ export async function POST(req: Request) {
       );
     }
 
-    await sendReferralThankYouEmails({
-      dentistName: doc.referringDentist.name,
-      dentistEmail: doc.referringDentist.email,
-      patientName: doc.patient.name,
-      patientEmail: doc.patient.email,
+    await sendReferralEmails({
+      referringDentist: doc.referringDentist,
+      patient: doc.patient,
+      implantInterests: doc.implantInterests,
+      clinicalHistory: doc.clinicalHistory,
+      medicalHistory: doc.medicalHistory,
+      radiographSelections: doc.radiographSelections,
+      radiographOther: doc.radiographOther,
+      imagingNotes: doc.imagingNotes,
+      attachmentUrls: doc.attachmentUrls,
+      signature: doc.signature,
+      signedDate: doc.signedDate,
     });
 
     return NextResponse.json({ success: true });

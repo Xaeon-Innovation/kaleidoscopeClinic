@@ -11,6 +11,7 @@ import {
   doc,
   Timestamp,
 } from "firebase/firestore";
+import { PatientContactActions } from "@/components/admin/PatientContactActions";
 import { getFirebaseDb } from "@/lib/firebase/client";
 
 type Lead = {
@@ -296,16 +297,16 @@ export default function AdminLeadsPage() {
                         {lead.message || "—"}
                       </p>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <PatientContactActions
+                        email={lead.email}
+                        phone={lead.phone}
+                        name={lead.name}
+                      />
                       <a
-                        href={`mailto:${lead.email}`}
-                        className="rounded-xl bg-[var(--brand-dark)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-                      >
-                        Email patient
-                      </a>
-                      <a
-                        href={`tel:${lead.phone}`}
+                        href={`tel:${lead.phone.replace(/\s/g, "")}`}
                         className="rounded-xl border border-black/10 bg-white px-4 py-2 text-sm font-medium text-[var(--brand-dark)] hover:bg-black/[0.03]"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         Call
                       </a>
