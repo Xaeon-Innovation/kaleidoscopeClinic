@@ -18,11 +18,11 @@ const root = path.join(__dirname, "..");
 const flagshipSlug = "full-arch-implants";
 
 const treatmentImages = {
-  "full-arch-implants": "/images/full_arch_2.jpeg",
+  "full-arch-implants": "/images/fullArch.jpeg",
   "dental-implants": "/images/treatments/Dental Implants.jpg",
   "smile-makeovers": "/images/treatments/smile makeover.jpg",
   "full-mouth-rehabilitation": "/images/treatments/Full Mouth Rehabilitation.jpg",
-  "facial-aesthetics": "/images/treatments/facial aesthetics.jpg",
+  "facial-aesthetics": "/images/faceAesthetics.jpeg",
   "hygiene-preventive-care": "/images/treatments/hygeine.jpg",
 };
 

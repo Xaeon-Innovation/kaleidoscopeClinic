@@ -37,9 +37,11 @@ export function serviceDocToTreatment(doc: ServiceDoc): Treatment {
 }
 
 const LEGACY_IMAGE_REDIRECTS: Record<string, string> = {
-  "/images/full-arch-implant.png": "/images/full_arch_2.jpeg",
-  "/images/full arch.jpeg": "/images/full_arch_2.jpeg",
-  "/images/full-arch.jpeg": "/images/full_arch_2.jpeg",
+  "/images/full-arch-implant.png": "/images/fullArch.jpeg",
+  "/images/full arch.jpeg": "/images/fullArch.jpeg",
+  "/images/full-arch.jpeg": "/images/fullArch.jpeg",
+  "/images/full_arch_2.jpeg": "/images/fullArch.jpeg",
+  "/images/treatments/facial aesthetics.jpg": "/images/faceAesthetics.jpeg",
 };
 
 export function resolveTreatmentImage(

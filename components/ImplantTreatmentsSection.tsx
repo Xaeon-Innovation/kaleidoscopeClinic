@@ -28,7 +28,7 @@ export function ImplantTreatmentsSection({
     treatments.find((t) => t.slug === flagshipSlug) ?? treatments[0]!;
   const others = treatments.filter((t) => t.slug !== flagship.slug);
   const flagshipImage =
-    treatmentImages[flagship.slug] ?? flagship.imageSrc ?? "/images/full_arch_2.jpeg";
+    treatmentImages[flagship.slug] ?? flagship.imageSrc ?? "/images/fullArch.jpeg";
   const flagshipDetailHref = `/treatments/${flagship.slug}`;
 
   return (
