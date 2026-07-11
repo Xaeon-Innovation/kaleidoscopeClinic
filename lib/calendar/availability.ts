@@ -9,6 +9,7 @@ import {
   getDaySchedule,
   type BookingSettings,
 } from "@/lib/booking/settings";
+import { isWeekBookable } from "@/lib/booking/weekAvailability";
 import type { SlotInterval } from "@/lib/calendar/slot";
 
 export type { SlotInterval } from "@/lib/calendar/slot";
@@ -42,6 +43,11 @@ export function generateCandidateSlots(
   }
 
   for (let dateStr = fromDay; ; dateStr = nextYmd(dateStr)) {
+    if (!isWeekBookable(dateStr, settings)) {
+      if (dateStr === toDay) break;
+      continue;
+    }
+
     const noon = toDate(`${dateStr}T12:00:00`, { timeZone: tz });
     const isoWeekday = parseInt(formatInTimeZone(noon, tz, "i"), 10);
     const day = getDaySchedule(settings, isoWeekday);

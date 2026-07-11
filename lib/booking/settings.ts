@@ -1,9 +1,19 @@
 import "server-only";
 
 import { getAdminDb } from "@/lib/firebase/admin";
-import type { BookingSettings, DaySchedule } from "@/lib/booking/settingsTypes";
+import type {
+  BookingSettings,
+  DaySchedule,
+  WeekAvailabilityMode,
+} from "@/lib/booking/settingsTypes";
+import { normalizeWeekOverrides } from "@/lib/booking/weekAvailability";
 
-export type { BookingSettings, DaySchedule } from "@/lib/booking/settingsTypes";
+export type {
+  BookingSettings,
+  DaySchedule,
+  WeekAvailabilityMode,
+  WeekOverride,
+} from "@/lib/booking/settingsTypes";
 
 export const BOOKING_SETTINGS_DOC = "booking";
 
@@ -47,6 +57,9 @@ export function defaultBookingSettings(): BookingSettings {
     currency: (process.env.BOOKING_CURRENCY ?? "gbp").toLowerCase(),
     holdMinutes: envInt("BOOKING_HOLD_MINUTES", 20, 5, 120),
     days: defaultDaysFromEnv(),
+    weekAvailabilityMode: "recurring",
+    disabledWeeks: [],
+    enabledWeeks: [],
   };
 }
 
@@ -93,11 +106,16 @@ export function normalizeBookingSettings(
     return Math.min(240, Math.max(15, Math.round(n)));
   })();
 
+  const timezone =
+    typeof input.timezone === "string" && input.timezone.trim()
+      ? input.timezone.trim()
+      : base.timezone;
+
+  const weekAvailabilityMode: WeekAvailabilityMode =
+    input.weekAvailabilityMode === "weeks_only" ? "weeks_only" : "recurring";
+
   return {
-    timezone:
-      typeof input.timezone === "string" && input.timezone.trim()
-        ? input.timezone.trim()
-        : base.timezone,
+    timezone,
     slotMinutes,
     depositPence: (() => {
       const n = input.depositPence ?? base.depositPence;
@@ -110,6 +128,9 @@ export function normalizeBookingSettings(
         : base.currency,
     holdMinutes: clampHour(input.holdMinutes ?? base.holdMinutes, 5, 120),
     days: [1, 2, 3, 4, 5, 6, 7].map((w) => daysByWeekday.get(w)!),
+    weekAvailabilityMode,
+    disabledWeeks: normalizeWeekOverrides(input.disabledWeeks, timezone),
+    enabledWeeks: normalizeWeekOverrides(input.enabledWeeks, timezone),
     updatedAt: input.updatedAt,
   };
 }

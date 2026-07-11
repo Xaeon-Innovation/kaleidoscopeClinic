@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { fulfillPaidCheckoutSession } from "@/lib/booking/fulfillCheckout";
+import { releaseUnpaidBookingHold } from "@/lib/booking/holds";
 import { getStripeWebhookSecret } from "@/lib/booking/config";
 import { getStripe } from "@/lib/stripe/server";
 
@@ -32,17 +33,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Webhook Error: ${msg}` }, { status: 400 });
   }
 
-  if (event.type !== "checkout.session.completed") {
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const result = await fulfillPaidCheckoutSession(session);
+
+    if (!result.ok) {
+      console.error("webhook fulfill failed", session.id, result.error);
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+
+    return NextResponse.json({ received: true, status: result.status });
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    if (session.id) {
+      await releaseUnpaidBookingHold(session.id);
+    }
     return NextResponse.json({ received: true });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-  const result = await fulfillPaidCheckoutSession(session);
-
-  if (!result.ok) {
-    console.error("webhook fulfill failed", session.id, result.error);
-    return NextResponse.json({ error: result.error }, { status: 500 });
-  }
-
-  return NextResponse.json({ received: true, status: result.status });
+  return NextResponse.json({ received: true });
 }

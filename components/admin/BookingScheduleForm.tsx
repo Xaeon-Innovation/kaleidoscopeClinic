@@ -1,7 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import type { BookingSettings, DaySchedule } from "@/lib/booking/settingsTypes";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type {
+  BookingSettings,
+  DaySchedule,
+  WeekAvailabilityMode,
+} from "@/lib/booking/settingsTypes";
+import {
+  formatWeekRange,
+  listUpcomingWeeks,
+  todayYmdInTimezone,
+} from "@/lib/booking/weekAvailability";
 
 const DAY_NAMES = [
   "Monday",
@@ -13,12 +22,119 @@ const DAY_NAMES = [
   "Sunday",
 ];
 
+const UPCOMING_WEEK_COUNT = 16;
+
 function formatHour(h: number): string {
   return `${String(h).padStart(2, "0")}:00`;
 }
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => i);
 const CLOSE_OPTIONS = Array.from({ length: 24 }, (_, i) => i + 1);
+
+function isWeekOpen(settings: BookingSettings, weekStart: string): boolean {
+  const mode = settings.weekAvailabilityMode ?? "recurring";
+  if (mode === "weeks_only") {
+    return (settings.enabledWeeks ?? []).some((w) => w.weekStart === weekStart);
+  }
+  return !(settings.disabledWeeks ?? []).some((w) => w.weekStart === weekStart);
+}
+
+function getWeekLabel(
+  settings: BookingSettings,
+  weekStart: string
+): string | undefined {
+  const mode = settings.weekAvailabilityMode ?? "recurring";
+  const list =
+    mode === "weeks_only"
+      ? settings.enabledWeeks ?? []
+      : settings.disabledWeeks ?? [];
+  return list.find((w) => w.weekStart === weekStart)?.label;
+}
+
+function setWeekOpen(
+  settings: BookingSettings,
+  weekStart: string,
+  open: boolean,
+  label?: string
+): BookingSettings {
+  const mode = settings.weekAvailabilityMode ?? "recurring";
+
+  if (mode === "recurring") {
+    const disabled = settings.disabledWeeks ?? [];
+    if (open) {
+      return {
+        ...settings,
+        disabledWeeks: disabled.filter((w) => w.weekStart !== weekStart),
+      };
+    }
+    const existing = disabled.find((w) => w.weekStart === weekStart);
+    const entry = {
+      weekStart,
+      ...(label !== undefined
+        ? label.trim()
+          ? { label: label.trim() }
+          : {}
+        : existing?.label
+          ? { label: existing.label }
+          : {}),
+    };
+    return {
+      ...settings,
+      disabledWeeks: [
+        ...disabled.filter((w) => w.weekStart !== weekStart),
+        entry,
+      ],
+    };
+  }
+
+  const enabled = settings.enabledWeeks ?? [];
+  if (!open) {
+    return {
+      ...settings,
+      enabledWeeks: enabled.filter((w) => w.weekStart !== weekStart),
+    };
+  }
+  const existing = enabled.find((w) => w.weekStart === weekStart);
+  const entry = {
+    weekStart,
+    ...(label !== undefined
+      ? label.trim()
+        ? { label: label.trim() }
+        : {}
+      : existing?.label
+        ? { label: existing.label }
+        : {}),
+  };
+  return {
+    ...settings,
+    enabledWeeks: [...enabled.filter((w) => w.weekStart !== weekStart), entry],
+  };
+}
+
+function updateWeekLabel(
+  settings: BookingSettings,
+  weekStart: string,
+  label: string
+): BookingSettings {
+  const mode = settings.weekAvailabilityMode ?? "recurring";
+  const key = mode === "weeks_only" ? "enabledWeeks" : "disabledWeeks";
+  const list = settings[key] ?? [];
+  if (!list.some((w) => w.weekStart === weekStart)) {
+    return setWeekOpen(settings, weekStart, mode === "weeks_only", label);
+  }
+  return {
+    ...settings,
+    [key]: list.map((w) => {
+      if (w.weekStart !== weekStart) return w;
+      const trimmed = label.trim();
+      if (!trimmed) {
+        const { label: _removed, ...rest } = w;
+        return rest;
+      }
+      return { ...w, label: trimmed };
+    }),
+  };
+}
 
 export function BookingScheduleForm() {
   const [settings, setSettings] = useState<BookingSettings | null>(null);
@@ -45,6 +161,12 @@ export function BookingScheduleForm() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const upcomingWeeks = useMemo(() => {
+    if (!settings) return [];
+    const today = todayYmdInTimezone(settings.timezone);
+    return listUpcomingWeeks(today, UPCOMING_WEEK_COUNT, settings.timezone);
+  }, [settings]);
 
   function updateDay(weekday: number, patch: Partial<DaySchedule>) {
     setSettings((prev) => {
@@ -183,6 +305,157 @@ export function BookingScheduleForm() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="space-y-4 rounded-xl border border-black/8 p-4">
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-black/45">
+                Week availability
+              </h3>
+              <p className="mt-1.5 text-sm text-black/60">
+                Control which calendar weeks accept online bookings. Blocked weeks
+                override Google Calendar — no slots are offered even if the
+                calendar is free.
+              </p>
+            </div>
+
+            <fieldset className="space-y-2">
+              <legend className="sr-only">Week availability mode</legend>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-black/8 px-3 py-2.5 has-[:checked]:border-[var(--gold)] has-[:checked]:bg-[var(--gold)]/5">
+                <input
+                  type="radio"
+                  name="weekAvailabilityMode"
+                  value="recurring"
+                  checked={
+                    (settings.weekAvailabilityMode ?? "recurring") ===
+                    "recurring"
+                  }
+                  onChange={() =>
+                    setSettings({
+                      ...settings,
+                      weekAvailabilityMode: "recurring" as WeekAvailabilityMode,
+                    })
+                  }
+                  className="mt-0.5"
+                />
+                <span className="text-sm">
+                  <span className="font-medium text-[var(--brand-dark)]">
+                    Weekly schedule
+                  </span>
+                  <span className="mt-0.5 block text-black/60">
+                    Use normal hours above; turn off specific weeks when
+                    you&apos;re away.
+                  </span>
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-black/8 px-3 py-2.5 has-[:checked]:border-[var(--gold)] has-[:checked]:bg-[var(--gold)]/5">
+                <input
+                  type="radio"
+                  name="weekAvailabilityMode"
+                  value="weeks_only"
+                  checked={settings.weekAvailabilityMode === "weeks_only"}
+                  onChange={() =>
+                    setSettings({
+                      ...settings,
+                      weekAvailabilityMode: "weeks_only" as WeekAvailabilityMode,
+                    })
+                  }
+                  className="mt-0.5"
+                />
+                <span className="text-sm">
+                  <span className="font-medium text-[var(--brand-dark)]">
+                    Selected weeks only
+                  </span>
+                  <span className="mt-0.5 block text-black/60">
+                    Only weeks you enable below are open for booking.
+                  </span>
+                </span>
+              </label>
+            </fieldset>
+
+            <div className="overflow-x-auto rounded-xl border border-black/8">
+              <table className="w-full min-w-[480px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-black/8 bg-black/[0.02] text-xs uppercase tracking-wider text-black/45">
+                    <th className="px-3 py-2">Week</th>
+                    <th className="px-3 py-2 text-center">
+                      {(settings.weekAvailabilityMode ?? "recurring") ===
+                      "recurring"
+                        ? "Open"
+                        : "Enabled"}
+                    </th>
+                    <th className="px-3 py-2">Note (optional)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcomingWeeks.map((weekStart) => {
+                    const open = isWeekOpen(settings, weekStart);
+                    const weekLabel = formatWeekRange(
+                      weekStart,
+                      settings.timezone
+                    );
+                    const note = getWeekLabel(settings, weekStart) ?? "";
+                    const showNote =
+                      (settings.weekAvailabilityMode ?? "recurring") ===
+                      "recurring"
+                        ? !open
+                        : open;
+
+                    return (
+                      <tr
+                        key={weekStart}
+                        className="border-b border-black/5 last:border-0"
+                      >
+                        <td className="px-3 py-2.5 font-medium text-[var(--brand-dark)]">
+                          {weekLabel}
+                        </td>
+                        <td className="px-3 py-2.5 text-center">
+                          <input
+                            type="checkbox"
+                            checked={open}
+                            aria-label={`Week ${weekLabel} ${
+                              open ? "open" : "closed"
+                            }`}
+                            onChange={(e) =>
+                              setSettings(
+                                setWeekOpen(
+                                  settings,
+                                  weekStart,
+                                  e.target.checked
+                                )
+                              )
+                            }
+                            className="h-4 w-4 rounded border-black/20"
+                          />
+                        </td>
+                        <td className="px-3 py-2.5">
+                          {showNote ? (
+                            <input
+                              type="text"
+                              value={note}
+                              placeholder="e.g. Holiday"
+                              aria-label={`Note for week ${weekLabel}`}
+                              onChange={(e) =>
+                                setSettings(
+                                  updateWeekLabel(
+                                    settings,
+                                    weekStart,
+                                    e.target.value
+                                  )
+                                )
+                              }
+                              className="h-9 w-full rounded-lg border border-black/10 px-2"
+                            />
+                          ) : (
+                            <span className="text-black/30">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

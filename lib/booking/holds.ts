@@ -4,6 +4,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
 import type { SlotInterval } from "@/lib/calendar/slot";
 import { getBookingSettings } from "@/lib/booking/settings";
+import { getStripe } from "@/lib/stripe/server";
 
 const HOLDS = "booking_holds";
 
@@ -33,6 +34,46 @@ export async function deleteBookingHold(stripeSessionId: string): Promise<void> 
   const db = getAdminDb();
   if (!db) return;
   await db.collection(HOLDS).doc(stripeSessionId).delete();
+}
+
+export type ReleaseHoldResult =
+  | { released: true }
+  | { released: false; reason: string };
+
+/**
+ * Deletes a temporary hold for an unpaid/abandoned Checkout session.
+ * Safe to call on cancel, expiry, or idempotent retries — never removes holds for paid sessions.
+ */
+export async function releaseUnpaidBookingHold(
+  sessionId: string
+): Promise<ReleaseHoldResult> {
+  const trimmed = sessionId.trim();
+  if (!trimmed) {
+    return { released: false, reason: "Missing session id." };
+  }
+
+  const stripe = getStripe();
+  if (stripe) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(trimmed);
+      if (session.payment_status === "paid") {
+        return { released: false, reason: "Payment already completed." };
+      }
+    } catch (e) {
+      console.warn("release hold: could not retrieve session", trimmed, e);
+    }
+  }
+
+  try {
+    await deleteBookingHold(trimmed);
+    return { released: true };
+  } catch (e) {
+    console.warn("release hold: delete failed", trimmed, e);
+    return {
+      released: false,
+      reason: e instanceof Error ? e.message : "Could not release hold.",
+    };
+  }
 }
 
 function overlaps(a: SlotInterval, b: SlotInterval): boolean {

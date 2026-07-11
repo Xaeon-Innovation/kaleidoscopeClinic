@@ -47,6 +47,16 @@ export async function PUT(request: Request) {
     );
   }
 
+  if (
+    normalized.weekAvailabilityMode === "weeks_only" &&
+    (normalized.enabledWeeks?.length ?? 0) === 0
+  ) {
+    return NextResponse.json(
+      { error: "At least one week must be enabled in weeks-only mode." },
+      { status: 400 }
+    );
+  }
+
   try {
     const settings = await saveBookingSettings(normalized);
     return NextResponse.json({ ok: true, settings });

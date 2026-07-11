@@ -219,6 +219,10 @@ export function AdminSettingsClient() {
                   until 9pm).
                 </li>
                 <li>
+                  Turn off entire weeks in booking settings when you&apos;re
+                  away, or switch to &quot;selected weeks only&quot; mode.
+                </li>
+                <li>
                   Cancelling a booking in Bookings removes the Google Calendar
                   event.
                 </li>

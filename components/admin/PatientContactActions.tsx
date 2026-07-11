@@ -7,7 +7,6 @@ import {
   buildPatientWhatsAppUrl,
   normalizeContactEmail,
   normalizeContactPhone,
-  openExternalUrl,
 } from "@/lib/contact/patientContactLinks";
 
 type PatientContactActionsProps = {
@@ -51,13 +50,15 @@ export function PatientContactActions({
   return (
     <div className="flex flex-wrap gap-2">
       {gmailUrl ? (
-        <button
-          type="button"
+        <a
+          href={gmailUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className={btnClass}
-          onClick={() => openExternalUrl(gmailUrl)}
+          onClick={(e) => e.stopPropagation()}
         >
           Open in Gmail
-        </button>
+        </a>
       ) : (
         <button type="button" className={btnClass} disabled>
           Open in Gmail

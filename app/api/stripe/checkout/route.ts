@@ -155,7 +155,8 @@ export async function POST(request: Request) {
       ],
       client_reference_id: `${start.getTime()}-${end.getTime()}`,
       success_url: `${base}/book/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/book`,
+      cancel_url: `${base}/book/cancelled?session_id={CHECKOUT_SESSION_ID}`,
+      expires_at: Math.floor(Date.now() / 1000) + booking.holdMinutes * 60,
       metadata,
       payment_intent_data: {
         metadata,
